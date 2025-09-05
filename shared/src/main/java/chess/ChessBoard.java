@@ -1,4 +1,6 @@
 package chess;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -7,6 +9,7 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessBoard {
+    int[][] board = new int[8][8];
 
     public ChessBoard() {
         

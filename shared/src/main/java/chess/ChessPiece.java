@@ -75,9 +75,13 @@ public class ChessPiece {
         switch(type){
             case KING:
                 for(int row = myPosition.getRow()-1;row <= myPosition.getRow()+1; row++){
+
                     if(row < 1 || row > 8){continue;}
+
                     for(int col = myPosition.getColumn()-1; col <= myPosition.getColumn()+1; col++){
+
                         if(col < 1 || col > 8){continue;}
+
                         ChessPosition cur_pos = new ChessPosition(row,col);
                         if(board.getPiece(cur_pos) == null) {
                             move_set.add(new ChessMove(myPosition,cur_pos, null));

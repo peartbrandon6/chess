@@ -4,5 +4,5 @@ resetBoard() sets to the start of the game not blank board
 
 Used a Map to store chesspositions on the board
 
-Is there an easy way to override the hash and equals methods for ChessBoard or do I have to go through each key and value individually?
+Make sure the resetBoard is implemented before trying to pass the equals and hashcode tests.
 

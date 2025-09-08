@@ -84,6 +84,7 @@ public abstract class EqualsTestingUtility<T> {
         // Programmatically test insertion of all different items
         int expectedSetSize = 1;
         for (var different : allDifferent) {
+
             Assertions.assertFalse(set.contains(different),
                     "[" + className + "] Different item should not be present in set before insertion");
             set.add(different);

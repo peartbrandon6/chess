@@ -1,6 +1,7 @@
 package chess;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -9,10 +10,32 @@ import java.util.HashMap;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    int[][] board = new int[8][8];
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessBoard that = (ChessBoard) o;
+        return board.equals(that.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return board.hashCode();
+    }
+
+    Map<ChessPosition,ChessPiece> board;
 
     public ChessBoard() {
-        
+        board = new HashMap<>();
+        /*
+        initializes blank 8x8 chess board
+         */
+        for(int row = 1; row <= 8; row++) {
+            for(int col = 1; col <= 8; col++) {
+                board.put(new ChessPosition(row, col), null);
+            }
+        }
     }
 
     /**
@@ -22,7 +45,8 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        throw new RuntimeException("Not implemented");
+
+        board.put(position, piece);
     }
 
     /**
@@ -33,7 +57,8 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        throw new RuntimeException("Not implemented");
+
+        return board.get(position);
     }
 
     /**
@@ -41,6 +66,8 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        for(ChessPosition key : board.keySet()) {
+            board.replace(key, null);
+        }
     }
 }

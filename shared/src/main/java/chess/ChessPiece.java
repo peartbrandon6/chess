@@ -1,7 +1,9 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Represents a single chess piece
@@ -67,9 +69,24 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+
+        Set<ChessMove> move_set = new HashSet<ChessMove>();
+
         switch(type){
             case KING:
-                for(int row );
+                for(int row = myPosition.getRow()-1;row <= myPosition.getRow()+1; row++){
+                    for(int col = myPosition.getColumn()-1; col <= myPosition.getColumn()+1; col++){
+
+                        ChessPosition cur_pos = new ChessPosition(row,col);
+                        if(board.getPiece(cur_pos) == null) {
+                            move_set.add(new ChessMove(myPosition,cur_pos, null));
+                        }
+                        else if (board.getPiece(cur_pos).getTeamColor() != pieceColor) {
+                            move_set.add(new ChessMove(myPosition,cur_pos, null));
+                        }
+
+                    }
+                }
 
             case QUEEN:
                 ;
@@ -89,5 +106,7 @@ public class ChessPiece {
 
 
         }
+
+        return move_set;
     }
 }

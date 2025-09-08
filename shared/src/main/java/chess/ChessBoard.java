@@ -66,8 +66,11 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        for(ChessPosition key : board.keySet()) {
-            board.replace(key, null);
+        for(int pawn = 1; pawn <= 8; pawn++){
+            addPiece(new ChessPosition(2,pawn),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
+        }
+        for(int rook : new int[]{1,8}){
+            addPiece(new ChessPosition(1,rook),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
         }
     }
 }

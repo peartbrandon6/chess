@@ -72,22 +72,25 @@ public class ChessPiece {
 
         Set<ChessMove> move_set = new HashSet<ChessMove>();
 
-        switch(type){
+        switch (type) {
             case KING:
-                for(int row = myPosition.getRow()-1;row <= myPosition.getRow()+1; row++){
+                for (int row = myPosition.getRow() - 1; row <= myPosition.getRow() + 1; row++) {
 
-                    if(row < 1 || row > 8){continue;}
+                    if (row < 1 || row > 8) {
+                        continue;
+                    }
 
-                    for(int col = myPosition.getColumn()-1; col <= myPosition.getColumn()+1; col++){
+                    for (int col = myPosition.getColumn() - 1; col <= myPosition.getColumn() + 1; col++) {
 
-                        if(col < 1 || col > 8){continue;}
-
-                        ChessPosition cur_pos = new ChessPosition(row,col);
-                        if(board.getPiece(cur_pos) == null) {
-                            move_set.add(new ChessMove(myPosition,cur_pos, null));
+                        if (col < 1 || col > 8) {
+                            continue;
                         }
-                        else if (board.getPiece(cur_pos).getTeamColor() != pieceColor) {
-                            move_set.add(new ChessMove(myPosition,cur_pos, null));
+
+                        ChessPosition cur_pos = new ChessPosition(row, col);
+                        if (board.getPiece(cur_pos) == null) {
+                            move_set.add(new ChessMove(myPosition, cur_pos, null));
+                        } else if (board.getPiece(cur_pos).getTeamColor() != pieceColor) {
+                            move_set.add(new ChessMove(myPosition, cur_pos, null));
                         }
 
                     }
@@ -97,21 +100,92 @@ public class ChessPiece {
                 ;
 
             case BISHOP:
-                ;
+                int cur_row, cur_col;
+                ChessPosition cur_pos;
 
-            case KNIGHT:
-                ;
+                /* checks top-right direction */
+                cur_row = myPosition.getRow();
+                cur_col = myPosition.getColumn();
+                while (cur_row < 8 && cur_col < 8) {
+                    cur_pos = new ChessPosition(cur_row + 1, cur_col + 1);
+                    if (board.getPiece(cur_pos) == null) {
+                        cur_row++;
+                        cur_col++;
+                        move_set.add(new ChessMove(myPosition, cur_pos, null));
+                    } else if (board.getPiece(cur_pos).getTeamColor().equals(pieceColor)) {
+                        break;
+                    } else {
+                        move_set.add(new ChessMove(myPosition, cur_pos, null));
+                        break;
+                    }
+                }
 
-            case ROOK:
+                /* check bottom-right direction*/
+                cur_row = myPosition.getRow();
+                cur_col = myPosition.getColumn();
+                while (cur_row > 1 && cur_col < 8) {
+                    cur_pos = new ChessPosition(cur_row - 1, cur_col + 1);
+                    if (board.getPiece(cur_pos) == null) {
+                        cur_row--;
+                        cur_col++;
+                        move_set.add(new ChessMove(myPosition, cur_pos, null));
+                    } else if (board.getPiece(cur_pos).getTeamColor().equals(pieceColor)) {
+                        break;
+                    } else {
+                        move_set.add(new ChessMove(myPosition, cur_pos, null));
+                        break;
+                    }
+                }
 
-                ;
+                    /* checks top-left direction */
+                cur_row = myPosition.getRow();
+                cur_col = myPosition.getColumn();
+                while (cur_row < 8 && cur_col > 1) {
+                    cur_pos = new ChessPosition(cur_row + 1, cur_col - 1);
+                    if (board.getPiece(cur_pos) == null) {
+                        cur_row++;
+                        cur_col--;
+                        move_set.add(new ChessMove(myPosition, cur_pos, null));
+                    } else if (board.getPiece(cur_pos).getTeamColor().equals(pieceColor)) {
+                        break;
+                    } else {
+                        move_set.add(new ChessMove(myPosition, cur_pos, null));
+                        break;
+                    }
+                }
 
-            case PAWN:
-                ;
+
+                /* checks bottom-left direction */
+                cur_row = myPosition.getRow();
+                cur_col = myPosition.getColumn();
+                while (cur_row > 1 && cur_col > 1) {
+                    cur_pos = new ChessPosition(cur_row - 1, cur_col - 1);
+                    if (board.getPiece(cur_pos) == null) {
+                        cur_row--;
+                        cur_col--;
+                        move_set.add(new ChessMove(myPosition, cur_pos, null));
+                    } else if (board.getPiece(cur_pos).getTeamColor().equals(pieceColor)) {
+                        break;
+                    } else {
+                        move_set.add(new ChessMove(myPosition, cur_pos, null));
+                        break;
+                    }
+                }
 
 
+                    case KNIGHT:
+                        ;
+
+                    case ROOK:
+
+                        ;
+
+                    case PAWN:
+                        ;
+
+
+                }
+
+                return move_set;
         }
-
-        return move_set;
     }
-}

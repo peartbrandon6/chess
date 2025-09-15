@@ -68,6 +68,12 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
+
+    private Collection<ChessMove> move_direction(ChessBoard board, ChessPosition myPosition, boolean recurse, int x, int y) {
+        ChessMove moves[];
+        return moves;
+    }
+
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
 
         Set<ChessMove> move_set = new HashSet<ChessMove>();

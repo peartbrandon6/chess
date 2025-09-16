@@ -69,10 +69,51 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
 
-    private Collection<ChessMove> move_direction(ChessBoard board, ChessPosition myPosition, boolean recurse, int x, int y) {
-        ChessMove moves[];
+    public Collection<ChessMove> move_getter(ChessBoard board, ChessPosition myPosition, boolean recurse, int row, int col , ChessPiece.PieceType promo) {
+        Set<ChessMove> moves = new HashSet<ChessMove>();
+        int cur_row, cur_col;
+        ChessPosition cur_pos;
+
+        if(row == 0 && col == 0){
+            return moves;
+        }
+
+        cur_row = myPosition.getRow();
+        cur_col = myPosition.getColumn();
+
+        while (true) {
+
+            cur_row += row;
+            cur_col += col;
+            cur_pos = new ChessPosition(cur_row, cur_col);
+
+            if(cur_row <= 8 && cur_row >= 1 && cur_col >= 1 && cur_col <= 8) {
+
+                if (board.getPiece(cur_pos) == null) {
+                    System.out.print(cur_pos);
+                    moves.add(new ChessMove(myPosition, cur_pos, promo));
+                } else if (board.getPiece(cur_pos).getTeamColor().equals(this.pieceColor)) {
+                    break;
+                } else {
+                    System.out.print(cur_pos);
+                    moves.add(new ChessMove(myPosition, cur_pos, promo));
+                    break;
+                }
+            }
+            else {break;}
+
+            if(!recurse){ break; }
+        }
+
         return moves;
     }
+
+
+
+    public Collection<ChessMove> move_getter(ChessBoard board, ChessPosition myPosition, boolean recurse, int row, int col){
+        return move_getter(board,myPosition,recurse,row,col, null);
+    }
+
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
 
@@ -80,27 +121,81 @@ public class ChessPiece {
 
         switch (type) {
             case KING:
-                for (int row = myPosition.getRow() - 1; row <= myPosition.getRow() + 1; row++) {
+                /*
+                for(int row = myPosition.getRow()-1;row <= myPosition.getRow()+1; row++){
 
-                    if (row < 1 || row > 8) {
+                    if(row < 1 || row > 8){
                         continue;
                     }
 
-                    for (int col = myPosition.getColumn() - 1; col <= myPosition.getColumn() + 1; col++) {
+                    for(int col = myPosition.getColumn()-1; col <= myPosition.getColumn()+1; col++){
 
-                        if (col < 1 || col > 8) {
+                        if(col < 1 || col > 8){
                             continue;
                         }
 
-                        ChessPosition cur_pos = new ChessPosition(row, col);
-                        if (board.getPiece(cur_pos) == null) {
-                            move_set.add(new ChessMove(myPosition, cur_pos, null));
-                        } else if (board.getPiece(cur_pos).getTeamColor() != pieceColor) {
-                            move_set.add(new ChessMove(myPosition, cur_pos, null));
+                        ChessPosition cur_pos = new ChessPosition(row,col);
+                        if(board.getPiece(cur_pos) == null) {
+                            move_set.add(new ChessMove(myPosition,cur_pos, null));
+                        }
+                        else if (board.getPiece(cur_pos).getTeamColor() != pieceColor) {
+                            move_set.add(new ChessMove(myPosition,cur_pos, null));
                         }
 
                     }
+
                 }
+
+                 */
+
+
+
+                int[] arrx = {-1,0,1};
+                int[] arry = {-1,0,1};
+
+                for(int row: arrx){
+                    for(int col: arry) {
+                        for (ChessMove move: move_getter(board, myPosition, false, row, col)){
+                            if(row == 0 && col ==0) continue;
+                            move_set.add(move);
+                        }
+                    }
+                }
+
+                /*
+                for (ChessMove move: move_getter(board, myPosition, false, 1, 0)){
+
+                    move_set.add(move);
+                }
+                for (ChessMove move: move_getter(board, myPosition, false, 1, -1)){
+
+                    move_set.add(move);
+                }
+                for (ChessMove move: move_getter(board, myPosition, false, 1, 1)){
+
+                    move_set.add(move);
+                }
+                for (ChessMove move: move_getter(board, myPosition, false, -1, 0)){
+
+                    move_set.add(move);
+                }
+                for (ChessMove move: move_getter(board, myPosition, false, -1, 1)){
+
+                    move_set.add(move);
+                }
+                for (ChessMove move: move_getter(board, myPosition, false, -1, -1)){
+
+                    move_set.add(move);
+                }
+                for (ChessMove move: move_getter(board, myPosition, false, 0, -1)){
+
+                    move_set.add(move);
+                }
+                for (ChessMove move: move_getter(board, myPosition, false, 0, 1)){
+
+                    move_set.add(move);
+                }
+*/
 
             case QUEEN:
                 ;
@@ -108,8 +203,8 @@ public class ChessPiece {
             case BISHOP:
                 int cur_row, cur_col;
                 ChessPosition cur_pos;
+/*
 
-                /* checks top-right direction */
                 cur_row = myPosition.getRow();
                 cur_col = myPosition.getColumn();
                 while (cur_row < 8 && cur_col < 8) {
@@ -126,7 +221,7 @@ public class ChessPiece {
                     }
                 }
 
-                /* check bottom-right direction*/
+
                 cur_row = myPosition.getRow();
                 cur_col = myPosition.getColumn();
                 while (cur_row > 1 && cur_col < 8) {
@@ -143,7 +238,7 @@ public class ChessPiece {
                     }
                 }
 
-                    /* checks top-left direction */
+
                 cur_row = myPosition.getRow();
                 cur_col = myPosition.getColumn();
                 while (cur_row < 8 && cur_col > 1) {
@@ -161,7 +256,6 @@ public class ChessPiece {
                 }
 
 
-                /* checks bottom-left direction */
                 cur_row = myPosition.getRow();
                 cur_col = myPosition.getColumn();
                 while (cur_row > 1 && cur_col > 1) {
@@ -177,6 +271,9 @@ public class ChessPiece {
                         break;
                     }
                 }
+*/
+
+
 
 
                     case KNIGHT:
@@ -194,4 +291,8 @@ public class ChessPiece {
 
                 return move_set;
         }
+
+
+
     }
+

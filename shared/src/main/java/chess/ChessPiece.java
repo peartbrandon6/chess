@@ -69,7 +69,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
 
-    public Collection<ChessMove> move_getter(ChessBoard board, ChessPosition myPosition, boolean recurse, int row, int col) {
+    private Collection<ChessMove> move_getter(ChessBoard board, ChessPosition myPosition, boolean recurse, int row, int col) {
         Set<ChessMove> moves = new HashSet<ChessMove>();
         int cur_row, cur_col;
         ChessPosition cur_pos;

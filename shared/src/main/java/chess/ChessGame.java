@@ -119,12 +119,13 @@ public class ChessGame {
     }
 
 
-    // Helper function to get team's King position
+    // Helper function for isInCheck, gives position of the give team's King
     private ChessPosition getKing(TeamColor team){
         for(int row = 1; row <= 8; row++) {
             for(int col = 1; col <= 8; col++) {
                 ChessPosition pos = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(pos);
+                // if it is my King piece return the position
                 if (piece != null && piece.getTeamColor() == team && piece.getPieceType() == ChessPiece.PieceType.KING) return pos;
             }
         }
@@ -156,6 +157,7 @@ public class ChessGame {
         return false;
     }
 
+    // Helper function for checkmate and stalemate
     private boolean hasTeamMoves(TeamColor teamColor){
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {

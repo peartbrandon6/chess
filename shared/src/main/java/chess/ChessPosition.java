@@ -38,13 +38,16 @@ public class ChessPosition {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
+
         ChessPosition that = (ChessPosition) o;
-        return row_pos == that.getRow() && col_pos == that.getColumn();
+        return row_pos == that.row_pos && col_pos == that.col_pos;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(row_pos, col_pos);
+        int result = row_pos;
+        result = 31 * result + col_pos;
+        return result;
     }
 
     @Override

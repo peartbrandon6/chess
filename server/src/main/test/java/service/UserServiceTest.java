@@ -12,13 +12,15 @@ class UserServiceTest {
     @Test
     void register() {
         UserData user = new UserData("joe","j@j","j");
-        var at = "xyz";
-
         var da = new MemoryDataAccess();
         var service = new UserService(da);
-        AuthData res = service.register(user);
-        assertNotNull(res);
-        assertEquals(res.username(), user.username());
-        assertNotNull(res.authToken());
+        AuthData result = service.register(user);
+
+        assertNotNull(result);
+        assertEquals(result.username(), user.username());
+        assertNotNull(result.authToken());
     }
+
+
+
 }

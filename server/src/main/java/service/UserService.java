@@ -1,8 +1,8 @@
 package service;
 
 import dataaccess.DataAccess;
-import datamodel.RegistrationResult;
-import datamodel.UserData;
+import model.RegistrationResult;
+import model.UserData;
 
 public class UserService {
     private DataAccess dataAccess;

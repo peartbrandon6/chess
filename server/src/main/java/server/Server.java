@@ -5,7 +5,7 @@ import io.javalin.*;
 import io.javalin.http.Context;
 
 import service.UserService;
-import datamodel.UserData;
+import model.UserData;
 
 
 public class Server {

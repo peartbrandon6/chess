@@ -28,4 +28,13 @@ public class UserService {
 
         return data;
     }
+
+    public AuthData login(){
+        return null;
+    }
+
+    public void logout(){
+
+    }
+
 }

@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.MemoryDataAccess;
+import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 
@@ -10,7 +11,7 @@ class UserServiceTest {
 
     @Test
     void register() {
-        var user = new UserData("joe","j@j","j");
+        UserData user = new UserData("joe","j@j","j");
         var at = "xyz";
 
         var da = new MemoryDataAccess();

@@ -1,7 +1,7 @@
 package service;
 
 import dataaccess.DataAccess;
-import model.RegistrationResult;
+import model.AuthData;
 import model.UserData;
 
 public class UserService {
@@ -10,8 +10,8 @@ public class UserService {
         this.dataAccess = dataAccess;
     }
 
-    public RegistrationResult register(UserData userData){
+    public AuthData register(UserData userData){
         dataAccess.saveUser(userData);
-        return new RegistrationResult(userData.username(),"plug");
+        return new AuthData("plug", userData.username());
     }
 }

@@ -46,7 +46,10 @@ public class UserService extends Service{
     }
 
     public void logout(String authToken){
-        dataAccess.deleteAuthData(authToken);
+        if(authenticate(authToken)) {
+            dataAccess.deleteAuthData(authToken);
+        }
+        else throw new RuntimeException("401 forbidden bad authToken");    // CHANGE ME
     }
 
 }

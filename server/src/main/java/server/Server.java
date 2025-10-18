@@ -57,7 +57,7 @@ public class Server {
     }
 
     private void logout(Context ctx){
-        String data = new Gson().fromJson(ctx.body(), String.class);
+        String data = new Gson().fromJson(ctx.header("authorization"), String.class);
         userService.logout(data);
         ctx.result("{}");
     }

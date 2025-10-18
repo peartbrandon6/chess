@@ -2,9 +2,8 @@ package service;
 
 import dataaccess.DataAccess;
 
-public class AuthService {
-    private final DataAccess dataAccess;
+public class AuthService extends Service{
     public AuthService(DataAccess dataAccess){
-        this.dataAccess = dataAccess;
+        super(dataAccess);
     }
 }

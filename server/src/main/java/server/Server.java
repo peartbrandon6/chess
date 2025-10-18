@@ -6,12 +6,13 @@ import dataaccess.MemoryDataAccess;
 import io.javalin.*;
 import io.javalin.http.Context;
 
-import model.AuthData;
+import model.*;
 import service.AuthService;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
-import model.UserData;
+
+import java.util.List;
 
 
 public class Server {
@@ -34,6 +35,8 @@ public class Server {
         // Register your endpoints and exception handlers here.
         server.delete("db", this::clear);
         server.post("user", this::register);
+        server.post("session", this::login);
+        server.delete("session", this::logout);
     }
 
     private void clear(Context ctx){
@@ -45,6 +48,18 @@ public class Server {
         UserData data = new Gson().fromJson(ctx.body(), UserData.class);
         AuthData res = userService.register(data);
         ctx.result(new Gson().toJson(res));
+    }
+
+    private void login(Context ctx){
+        LoginRequest data = new Gson().fromJson(ctx.body(), LoginRequest.class);
+        AuthData res = userService.login(data);
+        ctx.result(new Gson().toJson(res));
+    }
+
+    private void logout(Context ctx){
+        String data = new Gson().fromJson(ctx.body(), String.class);
+        userService.logout(data);
+        ctx.result("{}");
     }
 
 

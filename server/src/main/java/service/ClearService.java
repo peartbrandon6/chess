@@ -2,10 +2,9 @@ package service;
 
 import dataaccess.DataAccess;
 
-public class ClearService {
-    private final DataAccess dataAccess;
+public class ClearService extends Service{
     public ClearService(DataAccess dataAccess){
-        this.dataAccess = dataAccess;
+        super(dataAccess);
     }
 
     public void clear(){

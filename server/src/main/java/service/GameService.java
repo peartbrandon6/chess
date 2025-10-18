@@ -2,9 +2,8 @@ package service;
 
 import dataaccess.DataAccess;
 
-public class GameService {
-    private final DataAccess dataAccess;
+public class GameService extends Service{
     public GameService(DataAccess dataAccess){
-        this.dataAccess = dataAccess;
+        super(dataAccess);
     }
 }

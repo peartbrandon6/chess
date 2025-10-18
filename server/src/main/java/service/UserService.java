@@ -3,13 +3,13 @@ package service;
 import dataaccess.DataAccess;
 import model.AuthData;
 import model.UserData;
+import model.LoginRequest;
 
 import java.util.UUID;
 
-public class UserService {
-    private final DataAccess dataAccess;
+public class UserService extends Service{
     public UserService(DataAccess dataAccess){
-        this.dataAccess = dataAccess;
+        super(dataAccess);
     }
 
     private String makeAuthToken(){
@@ -20,7 +20,7 @@ public class UserService {
         if (dataAccess.getUserData(userData.username()) == null){
             dataAccess.putUserData(userData);
         }
-        else throw new RuntimeException("Error: already taken");
+        else throw new RuntimeException("Error: already taken");      //CHANGE ME
 
         String authToken = makeAuthToken();
         AuthData data = new AuthData(authToken, userData.username());
@@ -29,12 +29,24 @@ public class UserService {
         return data;
     }
 
-    public AuthData login(){
-        return null;
+    public AuthData login(LoginRequest userData){
+        UserData dbData = dataAccess.getUserData(userData.username());
+        if(dbData == null){
+            throw new RuntimeException("401 unauthorized bad username");       //CHANGE ME
+        }
+
+        if(dbData.password().equals(userData.password())){
+            AuthData authData = new AuthData(makeAuthToken(), userData.username());
+            dataAccess.putAuthData(authData);
+            return authData;
+        }
+        else{
+            throw new RuntimeException("401 unauthorized bad password");      // CHANGE ME
+        }
     }
 
-    public void logout(){
-
+    public void logout(String authToken){
+        dataAccess.deleteAuthData(authToken);
     }
 
 }

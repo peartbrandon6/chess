@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
 import exceptions.*;
@@ -15,6 +16,12 @@ import service.UserService;
 
 
 record ErrorResponse(String message){
+}
+
+record CreateGameResponse(int gameID){
+}
+
+record ListGamesResponse(GameData[] games){
 }
 
 public class Server {
@@ -40,11 +47,17 @@ public class Server {
         server.post("session", this::login);
         server.delete("session", this::logout);
         server.get("game", this::listGames);
+        server.post("game", this::createGame);
+        server.put("game", this::joinGame);
     }
 
     private void clear(Context ctx){
-        clearService.clear();
-        ctx.result("{}");
+        try {
+            clearService.clear();
+            ctx.result("{}");
+        } catch (ServiceException e){
+            ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
+        }
     }
 
     private void register(Context ctx){
@@ -58,12 +71,14 @@ public class Server {
     }
 
     private void login(Context ctx){
-        LoginRequest data = gson.fromJson(ctx.body(), LoginRequest.class);
         try {
+            LoginRequest data = gson.fromJson(ctx.body(), LoginRequest.class);
             AuthData res = userService.login(data);
             ctx.result(gson.toJson(res));
         } catch (ServiceException e){
             ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
+        } catch (JsonSyntaxException e){
+            ctx.status(400).result(gson.toJson(new ErrorResponse("Error: bad request")));
         }
     }
 
@@ -81,7 +96,8 @@ public class Server {
     private void listGames(Context ctx){
         String auth = gson.fromJson(ctx.header("authorization"), String.class);
         try{
-            gameService.listGames(auth);
+            GameData[] games = gameService.listGames(auth);
+            ctx.result(gson.toJson(new ListGamesResponse(games)));
         } catch (ServiceException e){
             ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
         }
@@ -91,19 +107,23 @@ public class Server {
         String auth = gson.fromJson(ctx.header("authorization"), String.class);
         CreateGameRequest req = gson.fromJson(ctx.body(), CreateGameRequest.class);
         try{
-            gameService.createGame(auth, req);
+            int id = gameService.createGame(auth, req);
+            ctx.result(gson.toJson(new CreateGameResponse(id)));
         } catch (ServiceException e){
             ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
         }
     }
 
     private void joinGame(Context ctx){
-        String auth = gson.fromJson(ctx.header("authorization"), String.class);
-        JoinGameRequest req = gson.fromJson(ctx.body(), JoinGameRequest.class);
         try{
+            String auth = gson.fromJson(ctx.header("authorization"), String.class);
+            JoinGameRequest req = gson.fromJson(ctx.body(), JoinGameRequest.class);
             gameService.joinGame(auth,req);
+            ctx.result("{}");
         } catch (ServiceException e){
             ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
+        } catch (JsonSyntaxException e){
+            ctx.status(401).result(gson.toJson(new ErrorResponse("Error: bad request")));
         }
     }
 

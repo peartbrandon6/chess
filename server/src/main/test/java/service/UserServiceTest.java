@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.MemoryDataAccess;
+import exceptions.ServiceException;
 import model.AuthData;
 import model.LoginRequest;
 import model.UserData;
@@ -11,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserServiceTest {
 
     @Test
-    void register_pos() {
+    void register_pos() throws ServiceException {
         UserData user = new UserData("joe","j@j","j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);
@@ -23,7 +24,7 @@ class UserServiceTest {
     }
 
     @Test
-    void login_pos() {
+    void login_pos() throws ServiceException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);
@@ -36,7 +37,7 @@ class UserServiceTest {
     }
 
     @Test
-    void logout_pos() {
+    void logout_pos() throws ServiceException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);

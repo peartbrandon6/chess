@@ -1,8 +1,10 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
+import exceptions.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 
@@ -12,7 +14,6 @@ import service.ClearService;
 import service.GameService;
 import service.UserService;
 
-import java.util.List;
 
 
 public class Server {
@@ -45,18 +46,35 @@ public class Server {
     }
 
     private void register(Context ctx){
-        UserData data = new Gson().fromJson(ctx.body(), UserData.class);
-        AuthData res = userService.register(data);
-        ctx.result(new Gson().toJson(res));
+        Gson gson = new Gson();
+        try {
+            UserData data = gson.fromJson(ctx.body(), UserData.class);
+            try {
+                AuthData res = userService.register(data);
+                ctx.result(gson.toJson(res));
+            } catch (ServiceException e){
+                String msg = gson.toJson(e.getMessage());
+                ctx.status(e.code).result(msg);
+            }
+        } catch (JsonSyntaxException e){
+            ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
+        }
+
+
     }
 
-    private void login(Context ctx){
-        LoginRequest data = new Gson().fromJson(ctx.body(), LoginRequest.class);
-        AuthData res = userService.login(data);
-        ctx.result(new Gson().toJson(res));
+    private void login(Context ctx) throws ServiceException {
+        Gson gson = new Gson();
+        LoginRequest data = gson.fromJson(ctx.body(), LoginRequest.class);
+        try {
+            AuthData res = userService.login(data);
+            ctx.result(gson.toJson(res));
+        } catch (ServiceException e){
+            ctx.status(e.code).result("{ \"message\": \"Error: unauthorized\" }");
+        }
     }
 
-    private void logout(Context ctx){
+    private void logout(Context ctx) throws ServiceException {
         String data = new Gson().fromJson(ctx.header("authorization"), String.class);
         userService.logout(data);
         ctx.result("{}");

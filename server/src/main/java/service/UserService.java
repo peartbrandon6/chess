@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.DataAccess;
+import exceptions.ServiceException;
 import model.AuthData;
 import model.UserData;
 import model.LoginRequest;
@@ -16,23 +17,27 @@ public class UserService extends Service{
         return UUID.randomUUID().toString();
     }
 
-    public AuthData register(UserData userData){
+    public AuthData register(UserData userData) throws ServiceException {
         if (dataAccess.getUserData(userData.username()) == null){
             dataAccess.putUserData(userData);
         }
-        else throw new RuntimeException("Error: already taken");      //CHANGE ME
+        else throw new ServiceException(403, "Error: already taken");      //CHANGE ME
 
         String authToken = makeAuthToken();
-        AuthData data = new AuthData(authToken, userData.username());
-        dataAccess.putAuthData(data);
+        AuthData authdata = new AuthData(authToken, userData.username());
+        dataAccess.putAuthData(authdata);
 
-        return data;
+        return authdata;
     }
 
-    public AuthData login(LoginRequest userData){
+    public AuthData login(LoginRequest userData) throws ServiceException {
+        if(userData.username() == null || userData.password() == null){
+            throw new ServiceException(400, "Error: unauthorized");
+        }
+
         UserData dbData = dataAccess.getUserData(userData.username());
         if(dbData == null){
-            throw new RuntimeException("401 unauthorized bad username");       //CHANGE ME
+            throw new ServiceException(401, "Error: unauthorized");       //CHANGE ME
         }
 
         if(dbData.password().equals(userData.password())){
@@ -41,15 +46,19 @@ public class UserService extends Service{
             return authData;
         }
         else{
-            throw new RuntimeException("401 unauthorized bad password");      // CHANGE ME
+            throw new ServiceException(401, "Error: unauthorized");      // CHANGE ME
         }
     }
 
-    public void logout(String authToken){
+    public void logout(String authToken) throws ServiceException {
+        if(authToken == null){
+            throw new ServiceException(400, "Error: unauthorized");
+        }
+
         if(authenticate(authToken)) {
             dataAccess.deleteAuthData(authToken);
         }
-        else throw new RuntimeException("401 forbidden bad authToken");    // CHANGE ME
+        else throw new ServiceException(401, "Error: unauthorized");    // CHANGE ME
     }
 
 }

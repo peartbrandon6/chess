@@ -1,7 +1,6 @@
 package server;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
 import exceptions.*;
@@ -43,6 +42,7 @@ public class Server {
         server.post("user", this::register);
         server.post("session", this::login);
         server.delete("session", this::logout);
+        server.get("game", this::listGames);
     }
 
     private void clear(Context ctx){
@@ -58,12 +58,9 @@ public class Server {
         } catch (ServiceException e){
             ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
         }
-
-
-
     }
 
-    private void login(Context ctx) throws ServiceException {
+    private void login(Context ctx){
         LoginRequest data = gson.fromJson(ctx.body(), LoginRequest.class);
         try {
             AuthData res = userService.login(data);
@@ -73,10 +70,10 @@ public class Server {
         }
     }
 
-    private void logout(Context ctx) throws ServiceException {
-        String data = gson.fromJson(ctx.header("authorization"), String.class);
+    private void logout(Context ctx){
+        String auth = gson.fromJson(ctx.header("authorization"), String.class);
         try{
-            userService.logout(data);
+            userService.logout(auth);
             ctx.result("{}");
         } catch (ServiceException e){
             ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
@@ -84,7 +81,34 @@ public class Server {
 
     }
 
+    private void listGames(Context ctx){
+        String auth = gson.fromJson(ctx.header("authorization"), String.class);
+        try{
+            gameService.listGames(auth);
+        } catch (ServiceException e){
+            ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
+        }
+    }
 
+    private void createGame(Context ctx){
+        String auth = gson.fromJson(ctx.header("authorization"), String.class);
+        CreateGameRequest req = gson.fromJson(ctx.body(), CreateGameRequest.class);
+        try{
+            gameService.createGame(auth, req);
+        } catch (ServiceException e){
+            ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
+        }
+    }
+
+    private void joinGame(Context ctx){
+        String auth = gson.fromJson(ctx.header("authorization"), String.class);
+        JoinGameRequest req = gson.fromJson(ctx.body(), JoinGameRequest.class);
+        try{
+            gameService.joinGame(auth,req);
+        } catch (ServiceException e){
+            ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
+        }
+    }
 
 
 

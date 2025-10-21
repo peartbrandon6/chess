@@ -25,7 +25,7 @@ public class UserService extends Service{
         if (dataAccess.getUserData(userData.username()) == null){
             dataAccess.putUserData(userData);
         }
-        else throw new ServiceException(403, "Error: already taken");      //CHANGE ME
+        else throw new ServiceException(403, "Error: already taken");
 
         String authToken = makeAuthToken();
         AuthData authdata = new AuthData(authToken, userData.username());
@@ -41,7 +41,7 @@ public class UserService extends Service{
 
         UserData dbData = dataAccess.getUserData(userData.username());
         if(dbData == null){
-            throw new ServiceException(401, "Error: unauthorized");       //CHANGE ME
+            throw new ServiceException(401, "Error: unauthorized");
         }
 
         if(dbData.password().equals(userData.password())){
@@ -50,7 +50,7 @@ public class UserService extends Service{
             return authData;
         }
         else{
-            throw new ServiceException(401, "Error: unauthorized");      // CHANGE ME
+            throw new ServiceException(401, "Error: unauthorized");
         }
     }
 
@@ -62,7 +62,7 @@ public class UserService extends Service{
         if(authenticate(authToken)) {
             dataAccess.deleteAuthData(authToken);
         }
-        else throw new ServiceException(401, "Error: unauthorized");    // CHANGE ME
+        else throw new ServiceException(401, "Error: unauthorized");
     }
 
 }

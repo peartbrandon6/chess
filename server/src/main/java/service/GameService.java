@@ -2,7 +2,8 @@ package service;
 
 import dataaccess.DataAccess;
 import model.GameData;
-import model.JoinRequest;
+import model.JoinGameRequest;
+import model.CreateGameRequest;
 
 public class GameService extends Service{
     public GameService(DataAccess dataAccess){
@@ -13,12 +14,12 @@ public class GameService extends Service{
         authenticate(authToken);
     }
 
-    public GameData createGame(String authToken, String gameName){
+    public int createGame(String authToken, CreateGameRequest gameName){
         authenticate(authToken);
-        return null;
+        return 0;
     }
 
-    public void joinGame(String authToken, JoinRequest joinRequest){
+    public void joinGame(String authToken, JoinGameRequest joinGameRequest){
         authenticate(authToken);
     }
 }

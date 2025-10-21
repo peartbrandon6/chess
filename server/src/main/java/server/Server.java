@@ -123,7 +123,7 @@ public class Server {
         } catch (ServiceException e){
             ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
         } catch (JsonSyntaxException e){
-            ctx.status(401).result(gson.toJson(new ErrorResponse("Error: bad request")));
+            ctx.status(401).result(gson.toJson(new ErrorResponse("Error: unauthorized")));
         }
     }
 

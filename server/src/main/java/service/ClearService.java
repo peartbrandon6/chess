@@ -14,7 +14,7 @@ public class ClearService extends Service{
             dataAccess.clearGameData();
             dataAccess.clearUserData();
         } catch(Exception e) {
-            throw new ServiceException(500, "Error: unauthorized");
+            throw new ServiceException(500, e.getMessage());
         }
     }
 

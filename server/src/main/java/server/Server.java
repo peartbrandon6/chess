@@ -55,7 +55,7 @@ public class Server {
         try {
             clearService.clear();
             ctx.result("{}");
-        } catch (ServiceException e){
+        } catch (ServiceException e) {
             ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
         }
     }

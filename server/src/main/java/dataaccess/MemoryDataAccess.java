@@ -40,7 +40,7 @@ public class MemoryDataAccess implements DataAccess{
     }
 
     public void clearAuthData() {
-        userdata.clear();
+        authdata.clear();
     }
 
     public void clearGameData() {

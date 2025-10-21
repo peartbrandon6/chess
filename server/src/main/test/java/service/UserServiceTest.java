@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserServiceTest {
 
     @Test
-    void register() {
+    void register_pos() {
         UserData user = new UserData("joe","j@j","j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);
@@ -23,7 +23,7 @@ class UserServiceTest {
     }
 
     @Test
-    void login() {
+    void login_pos() {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);
@@ -35,5 +35,15 @@ class UserServiceTest {
         assertNotNull(result.authToken());
     }
 
+    @Test
+    void logout_pos() {
+        LoginRequest user = new LoginRequest("joe","j@j");
+        var da = new MemoryDataAccess();
+        var service = new UserService(da);
+        service.register(new UserData("joe","j@j","j"));
+        AuthData authdata = service.login(user);
+        service.logout(authdata.authToken());
 
+        assertThrows(RuntimeException.class, () -> service.login(user));
+    }
 }

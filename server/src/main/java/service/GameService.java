@@ -10,8 +10,9 @@ public class GameService extends Service{
         super(dataAccess);
     }
 
-    public void listGames(String authToken){
+    public GameData[] listGames(String authToken){
         authenticate(authToken);
+        return null;
     }
 
     public int createGame(String authToken, CreateGameRequest gameName){

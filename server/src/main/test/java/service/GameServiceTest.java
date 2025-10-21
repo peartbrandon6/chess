@@ -52,7 +52,8 @@ public class GameServiceTest {
         JoinGameRequest gameRequest = new JoinGameRequest("WHITE", gameID);
 
         gameService.joinGame(authdata.authToken(),gameRequest);
+        GameData game = gameService.listGames(authdata.authToken())[0];
 
-        assertInstanceOf(Integer.class, gameID);
+        assertEquals("joe", game.whiteUsername());
     }
 }

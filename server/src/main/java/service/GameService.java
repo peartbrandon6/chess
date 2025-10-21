@@ -1,26 +1,67 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.DataAccess;
+import exceptions.ServiceException;
 import model.GameData;
 import model.JoinGameRequest;
 import model.CreateGameRequest;
 
-public class GameService extends Service{
-    public GameService(DataAccess dataAccess){
+public class GameService extends Service {
+    public GameService(DataAccess dataAccess) {
         super(dataAccess);
     }
 
-    public GameData[] listGames(String authToken){
-        authenticate(authToken);
-        return null;
+    public GameData[] listGames(String authToken) throws ServiceException {
+        if (!authenticate(authToken)) {
+            throw new ServiceException(401, "Error: unauthorized");
+        }
+        return dataAccess.getAllGameData();
     }
 
-    public int createGame(String authToken, CreateGameRequest gameName){
-        authenticate(authToken);
-        return 0;
+    private int createGameID() {
+        int id = 1;
+        while (dataAccess.getGameData(id) != null) {
+            id++;
+        }
+        return id;
     }
 
-    public void joinGame(String authToken, JoinGameRequest joinGameRequest){
-        authenticate(authToken);
+    public int createGame(String authToken, CreateGameRequest createGameRequest) throws ServiceException {
+        if (createGameRequest.gameName() == null) {
+            throw new ServiceException(400, "Error: bad request");
+        }
+        if (!authenticate(authToken)) {
+            throw new ServiceException(401, "Error: unauthorized");
+        }
+
+        int id = createGameID();
+        GameData game = new GameData(id, null, null, createGameRequest.gameName(), new ChessGame());
+        dataAccess.putGameData(game);
+
+        return id;
+    }
+
+    public void joinGame(String authToken, JoinGameRequest joinGameRequest) throws ServiceException {
+        if (joinGameRequest.playerColor() == null || !joinGameRequest.playerColor().equals("WHITE") && !joinGameRequest.playerColor().equals("BLACK") || joinGameRequest.gameID() == 0) {
+            throw new ServiceException(400, "Error: bad request");
+        }
+        if (!authenticate(authToken)) {
+            throw new ServiceException(401, "Error: unauthorized");
+        }
+
+        String username = dataAccess.getAuthData(authToken).username();
+        GameData game = dataAccess.getGameData(joinGameRequest.gameID());
+        if(game == null) { throw new ServiceException(400, "Error: bad request"); }
+
+
+        // adds player to game
+        if(joinGameRequest.playerColor().equals("WHITE") && game.whiteUsername() == null){
+            dataAccess.putGameData(new GameData(game.gameID(), username, game.blackUsername(),game.gameName(),game.game()));
+        }
+        else if(joinGameRequest.playerColor().equals("BLACK") && game.blackUsername() == null){
+            dataAccess.putGameData(new GameData(game.gameID(), game.whiteUsername(), username,game.gameName(),game.game()));
+        }
+        else throw new ServiceException(403, "Error: already taken");
     }
 }

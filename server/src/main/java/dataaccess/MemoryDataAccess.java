@@ -19,6 +19,10 @@ public class MemoryDataAccess implements DataAccess{
         return gamedata.get(gameID);
     }
 
+    public GameData[] getAllGameData(){
+        return gamedata.values().toArray(new GameData[gamedata.size()]);
+    }
+
     public UserData getUserData(String username) {
         return userdata.get(username);
     }

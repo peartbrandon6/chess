@@ -7,6 +7,7 @@ import model.UserData;
 public interface DataAccess {
     public AuthData getAuthData(String authToken);
     public GameData getGameData(Integer gameID);
+    public GameData[] getAllGameData();
     public UserData getUserData(String username);
 
     public void putAuthData(AuthData data);

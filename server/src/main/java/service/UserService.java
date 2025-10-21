@@ -36,7 +36,7 @@ public class UserService extends Service{
 
     public AuthData login(LoginRequest userData) throws ServiceException {
         if(userData.username() == null || userData.password() == null){
-            throw new ServiceException(400, "Error: unauthorized");
+            throw new ServiceException(400, "Error: bad request");
         }
 
         UserData dbData = dataAccess.getUserData(userData.username());
@@ -56,7 +56,7 @@ public class UserService extends Service{
 
     public void logout(String authToken) throws ServiceException {
         if(authToken == null){
-            throw new ServiceException(400, "Error: unauthorized");
+            throw new ServiceException(400, "Error: bad request");
         }
 
         if(authenticate(authToken)) {

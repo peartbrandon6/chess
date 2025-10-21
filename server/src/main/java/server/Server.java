@@ -14,8 +14,6 @@ import service.ClearService;
 import service.GameService;
 import service.UserService;
 
-import java.util.HashMap;
-import java.util.Map;
 
 
 record ErrorResponse(String message){

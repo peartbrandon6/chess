@@ -54,7 +54,7 @@ class UserServiceTest {
         service.register(new UserData("joe","j@j","j"));
         AuthData result = service.login(user);
 
-
+        assertThrows(ServiceException.class, () -> service.login(new LoginRequest("johnny","john")));
     }
 
     @Test
@@ -78,6 +78,6 @@ class UserServiceTest {
         AuthData authdata = service.login(user);
         service.logout(authdata.authToken());
 
-        assertDoesNotThrow(() -> service.login(user));
+        assertThrows(ServiceException.class, () -> service.logout(authdata.authToken()));
     }
 }

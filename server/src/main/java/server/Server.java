@@ -8,7 +8,6 @@ import io.javalin.*;
 import io.javalin.http.Context;
 
 import model.*;
-import service.AuthService;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -23,7 +22,6 @@ public class Server {
     private final Javalin server;
     private final ClearService clearService;
     private final UserService userService;
-    private final AuthService authService;
     private final GameService gameService;
     private final DataAccess dataAccess;
     private final Gson gson;
@@ -33,7 +31,6 @@ public class Server {
         dataAccess = new MemoryDataAccess();
         clearService = new ClearService(dataAccess);
         userService = new UserService(dataAccess);
-        authService = new AuthService(dataAccess);
         gameService = new GameService(dataAccess);
         gson = new Gson();
 

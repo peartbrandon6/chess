@@ -14,7 +14,12 @@ import service.ClearService;
 import service.GameService;
 import service.UserService;
 
+import java.util.HashMap;
+import java.util.Map;
 
+
+record ErrorResponse(String message){
+}
 
 public class Server {
 
@@ -24,6 +29,7 @@ public class Server {
     private final AuthService authService;
     private final GameService gameService;
     private final DataAccess dataAccess;
+    private final Gson gson;
 
     public Server() {
         server = Javalin.create(config -> config.staticFiles.add("web"));
@@ -32,6 +38,7 @@ public class Server {
         userService = new UserService(dataAccess);
         authService = new AuthService(dataAccess);
         gameService = new GameService(dataAccess);
+        gson = new Gson();
 
         // Register your endpoints and exception handlers here.
         server.delete("db", this::clear);
@@ -46,38 +53,37 @@ public class Server {
     }
 
     private void register(Context ctx){
-        Gson gson = new Gson();
+        UserData data = gson.fromJson(ctx.body(), UserData.class);
         try {
-            UserData data = gson.fromJson(ctx.body(), UserData.class);
-            try {
-                AuthData res = userService.register(data);
-                ctx.result(gson.toJson(res));
-            } catch (ServiceException e){
-                String msg = gson.toJson(e.getMessage());
-                ctx.status(e.code).result(msg);
-            }
-        } catch (JsonSyntaxException e){
-            ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
+            AuthData res = userService.register(data);
+            ctx.result(gson.toJson(res));
+        } catch (ServiceException e){
+            ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
         }
+
 
 
     }
 
     private void login(Context ctx) throws ServiceException {
-        Gson gson = new Gson();
         LoginRequest data = gson.fromJson(ctx.body(), LoginRequest.class);
         try {
             AuthData res = userService.login(data);
             ctx.result(gson.toJson(res));
         } catch (ServiceException e){
-            ctx.status(e.code).result("{ \"message\": \"Error: unauthorized\" }");
+            ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
         }
     }
 
     private void logout(Context ctx) throws ServiceException {
-        String data = new Gson().fromJson(ctx.header("authorization"), String.class);
-        userService.logout(data);
-        ctx.result("{}");
+        String data = gson.fromJson(ctx.header("authorization"), String.class);
+        try{
+            userService.logout(data);
+            ctx.result("{}");
+        } catch (ServiceException e){
+            ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
+        }
+
     }
 
 

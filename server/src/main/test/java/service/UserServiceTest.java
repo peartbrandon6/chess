@@ -24,6 +24,16 @@ class UserServiceTest {
     }
 
     @Test
+    void register_neg() throws ServiceException {
+        UserData user = new UserData("joe","j@j","j");
+        var da = new MemoryDataAccess();
+        var service = new UserService(da);
+        AuthData result = service.register(user);
+
+        assertThrows(ServiceException.class, () -> service.register(user));
+    }
+
+    @Test
     void login_pos() throws ServiceException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
@@ -37,6 +47,17 @@ class UserServiceTest {
     }
 
     @Test
+    void login_neg() throws ServiceException {
+        LoginRequest user = new LoginRequest("joe","j@j");
+        var da = new MemoryDataAccess();
+        var service = new UserService(da);
+        service.register(new UserData("joe","j@j","j"));
+        AuthData result = service.login(user);
+
+
+    }
+
+    @Test
     void logout_pos() throws ServiceException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
@@ -45,6 +66,18 @@ class UserServiceTest {
         AuthData authdata = service.login(user);
         service.logout(authdata.authToken());
 
-        assertThrows(RuntimeException.class, () -> service.login(user));
+        assertDoesNotThrow(() -> service.login(user));
+    }
+
+    @Test
+    void logout_neg() throws ServiceException {
+        LoginRequest user = new LoginRequest("joe","j@j");
+        var da = new MemoryDataAccess();
+        var service = new UserService(da);
+        service.register(new UserData("joe","j@j","j"));
+        AuthData authdata = service.login(user);
+        service.logout(authdata.authToken());
+
+        assertDoesNotThrow(() -> service.login(user));
     }
 }

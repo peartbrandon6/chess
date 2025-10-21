@@ -18,6 +18,10 @@ public class UserService extends Service{
     }
 
     public AuthData register(UserData userData) throws ServiceException {
+        if(userData.username() == null || userData.password() == null || userData.email() == null){
+            throw new ServiceException(400, "Error: bad request");
+        }
+
         if (dataAccess.getUserData(userData.username()) == null){
             dataAccess.putUserData(userData);
         }

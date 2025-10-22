@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GameServiceTest {
 
     @Test
-    void listGames_pos() throws ServiceException {
+    void listGamesPos() throws ServiceException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var userService = new UserService(da);
@@ -37,7 +37,7 @@ public class GameServiceTest {
     }
 
     @Test
-    void listGames_neg() throws ServiceException {
+    void listGamesNeg() throws ServiceException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var userService = new UserService(da);
@@ -62,7 +62,7 @@ public class GameServiceTest {
     }
 
     @Test
-    void createGame_pos() throws ServiceException {
+    void createGamePos() throws ServiceException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var userService = new UserService(da);
@@ -77,7 +77,7 @@ public class GameServiceTest {
     }
 
     @Test
-    void createGame_neg() throws ServiceException {
+    void createGameNeg() throws ServiceException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var userService = new UserService(da);
@@ -92,7 +92,7 @@ public class GameServiceTest {
     }
 
     @Test
-    void joinGame_pos() throws ServiceException {
+    void joinGamePos() throws ServiceException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var userService = new UserService(da);
@@ -111,7 +111,7 @@ public class GameServiceTest {
     }
 
     @Test
-    void joinGame_neg() throws ServiceException {
+    void joinGameNeg() throws ServiceException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var userService = new UserService(da);

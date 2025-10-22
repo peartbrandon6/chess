@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserServiceTest {
 
     @Test
-    void register_pos() throws ServiceException {
+    void registerPos() throws ServiceException {
         UserData user = new UserData("joe","j@j","j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);
@@ -24,7 +24,7 @@ class UserServiceTest {
     }
 
     @Test
-    void register_neg() throws ServiceException {
+    void registerNeg() throws ServiceException {
         UserData user = new UserData("joe","j@j","j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);
@@ -34,7 +34,7 @@ class UserServiceTest {
     }
 
     @Test
-    void login_pos() throws ServiceException {
+    void loginPos() throws ServiceException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);
@@ -47,7 +47,7 @@ class UserServiceTest {
     }
 
     @Test
-    void login_neg() throws ServiceException {
+    void loginNeg() throws ServiceException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);
@@ -58,7 +58,7 @@ class UserServiceTest {
     }
 
     @Test
-    void logout_pos() throws ServiceException {
+    void logoutPos() throws ServiceException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);
@@ -70,7 +70,7 @@ class UserServiceTest {
     }
 
     @Test
-    void logout_neg() throws ServiceException {
+    void logoutNeg() throws ServiceException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);

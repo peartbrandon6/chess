@@ -46,6 +46,7 @@ public class ChessPiece {
         ROOK,
         PAWN
     }
+    private final PieceType[] promos = {PieceType.ROOK,PieceType.BISHOP,PieceType.KNIGHT,PieceType.QUEEN};
 
     /**
      * @return Which team this chess piece belongs to
@@ -71,30 +72,30 @@ public class ChessPiece {
 
     private Collection<ChessMove> move_getter(ChessBoard board, ChessPosition myPosition, boolean recurse, int row, int col) {
         Set<ChessMove> moves = new HashSet<ChessMove>();
-        int cur_row, cur_col;
-        ChessPosition cur_pos;
+        int curRow, curCol;
+        ChessPosition curPos;
 
         if(row == 0 && col == 0){
             return moves;
         }
 
-        cur_row = myPosition.getRow();
-        cur_col = myPosition.getColumn();
+        curRow = myPosition.getRow();
+        curCol = myPosition.getColumn();
 
         while (true) {
 
-            cur_row += row;
-            cur_col += col;
-            cur_pos = new ChessPosition(cur_row, cur_col);
+            curRow += row;
+            curCol += col;
+            curPos = new ChessPosition(curRow, curCol);
 
-            if(cur_row <= 8 && cur_row >= 1 && cur_col >= 1 && cur_col <= 8) {
+            if(curRow <= 8 && curRow >= 1 && curCol >= 1 && curCol <= 8) {
 
-                if (board.getPiece(cur_pos) == null) {
-                    moves.add(new ChessMove(myPosition, cur_pos, null));
-                } else if (board.getPiece(cur_pos).getTeamColor().equals(this.pieceColor)) {
+                if (board.getPiece(curPos) == null) {
+                    moves.add(new ChessMove(myPosition, curPos, null));
+                } else if (board.getPiece(curPos).getTeamColor().equals(this.pieceColor)) {
                     break;
                 } else {
-                    moves.add(new ChessMove(myPosition, cur_pos, null));
+                    moves.add(new ChessMove(myPosition, curPos, null));
                     break;
                 }
             }
@@ -106,15 +107,50 @@ public class ChessPiece {
         return moves;
     }
 
+    private Set<ChessMove> pawnHelperUp(ChessBoard board, ChessPosition curPos, ChessPosition myPosition, int curRow, int row, int curCol){
+
+        var moveSet = new HashSet<ChessMove>();
+        if (board.getPiece(curPos) == null) {
+
+            // Initial move can move two
+            if((this.pieceColor == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2) || (this.pieceColor == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7)){
+                ChessPosition extraSpace = new ChessPosition(curRow+row, curCol);
+                if(board.getPiece(extraSpace) == null){
+                    moveSet.add(new ChessMove(myPosition, extraSpace, null));
+                }
+            }
+
+            if (curRow == 8 || curRow == 1) {
+                for (PieceType piece : promos) {
+                    moveSet.add(new ChessMove(myPosition, curPos, piece));
+                }
+            }
+            else moveSet.add(new ChessMove(myPosition, curPos, null));
+        }
+        return moveSet;
+    }
+
+    private Set<ChessMove> pawnHelperDiag(ChessBoard board, ChessPosition curPos, ChessPosition myPosition, int curRow){
+        var moveSet = new HashSet<ChessMove>();
+        if (board.getPiece(curPos) != null && board.getPiece(curPos).pieceColor != this.pieceColor) {
+            if (curRow == 8 || curRow == 1) {
+                for (PieceType piece : promos) {
+                    moveSet.add(new ChessMove(myPosition, curPos, piece));
+                }
+            }
+            else moveSet.add(new ChessMove(myPosition, curPos, null));
+        }
+        return moveSet;
+    }
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
 
-        Set<ChessMove> move_set = new HashSet<ChessMove>();
+        Set<ChessMove> moveSet = new HashSet<ChessMove>();
 
         switch (type) {
             case KING:
 
-                move_set = new HashSet<ChessMove>();
+                moveSet = new HashSet<ChessMove>();
                 int[] arrx = {-1,0,1};
                 int[] arry = {-1,0,1};
 
@@ -122,48 +158,48 @@ public class ChessPiece {
                     for(int col: arry) {
                         for (ChessMove move: move_getter(board, myPosition, false, row, col)){
                             if(row == 0 && col ==0) continue;
-                            move_set.add(move);
+                            moveSet.add(move);
                         }
                     }
                 }
 
-                return move_set;
+                return moveSet;
 
 
 
             case QUEEN:
-                move_set = new HashSet<ChessMove>();
+                moveSet = new HashSet<ChessMove>();
                 int[] queenarrx = {-1,0,1};
                 int[] queenarry = {-1,0,1};
 
                 for(int row: queenarrx){
                     for(int col: queenarry) {
                         for (ChessMove move: move_getter(board, myPosition, true, row, col)){
-                            move_set.add(move);
+                            moveSet.add(move);
                         }
                     }
                 }
-                return move_set;
+                return moveSet;
 
             case BISHOP:
-                move_set = new HashSet<ChessMove>();
+                moveSet = new HashSet<ChessMove>();
                 int[] bisharrx = {-1,1};
                 int[] bisharry = {-1,1};
 
                 for(int row: bisharrx){
                     for(int col: bisharry) {
                         for (ChessMove move: move_getter(board, myPosition, true, row, col)){
-                            move_set.add(move);
+                            moveSet.add(move);
                         }
                     }
                 }
-                return move_set;
+                return moveSet;
 
 
 
 
             case KNIGHT:
-                    move_set = new HashSet<ChessMove>();
+                    moveSet = new HashSet<ChessMove>();
 
                     int[] kniarrx = {-2,-1,1,2};
                     int[] kniarry = {-2,-1,1,2};
@@ -172,74 +208,54 @@ public class ChessPiece {
                         for(int col: kniarry) {
                             for (ChessMove move: move_getter(board, myPosition, false, row, col)){
                                 if(Math.abs(row) == Math.abs(col)) continue;
-                                move_set.add(move);
+                                moveSet.add(move);
                             }
                         }
                     }
 
-                    return move_set;
+                    return moveSet;
 
             case ROOK:
-                move_set = new HashSet<ChessMove>();
+                moveSet = new HashSet<ChessMove>();
                 int[] rookarrx = {-1,0,1};
                 int[] rookarry = {-1,0,1};
 
                 for(int row: rookarrx){
                     for(int col: rookarry) {
                         for (ChessMove move: move_getter(board, myPosition, true, row, col)){
-                            if(row != 0 && col != 0) continue;
-                            move_set.add(move);
+                            if(row != 0 && col != 0) {
+                                continue;
+                            }
+                            moveSet.add(move);
                         }
                     }
                 }
-                return move_set;
+                return moveSet;
 
 
             case PAWN:
-                move_set = new HashSet<ChessMove>();
-                ChessPosition cur_pos;
-                PieceType[] promos = {PieceType.ROOK,PieceType.BISHOP,PieceType.KNIGHT,PieceType.QUEEN};
-                int cur_row, cur_col;
+                moveSet = new HashSet<ChessMove>();
+                ChessPosition curPos;
+                int curRow, curCol;
 
                 int row = 1;
-                if(this.pieceColor == ChessGame.TeamColor.BLACK) row = -1;
+                if(this.pieceColor == ChessGame.TeamColor.BLACK) {
+                    row = -1;
+                }
 
                 for(int col = -1; col <= 1; col++){
                     // It needs to reset the current position each iteration
-                    cur_row = myPosition.getRow() + row;
-                    cur_col = myPosition.getColumn() + col;
-                    cur_pos = new ChessPosition(cur_row, cur_col);
+                    curRow = myPosition.getRow() + row;
+                    curCol = myPosition.getColumn() + col;
+                    curPos = new ChessPosition(curRow, curCol);
 
-                    if(cur_row <= 8 && cur_row >= 1 && cur_col >= 1 && cur_col <= 8) {
+                    if(curRow <= 8 && curRow >= 1 && curCol >= 1 && curCol <= 8) {
 
                         if(col == 0) { //if it's moving straight ahead, checks for promotion
-                            if (board.getPiece(cur_pos) == null) {
-
-                                // Initial move can move two
-                                if((this.pieceColor == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2) || (this.pieceColor == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7)){
-                                    ChessPosition extra_space = new ChessPosition(cur_row+row, cur_col);
-                                    if(board.getPiece(extra_space) == null){
-                                        move_set.add(new ChessMove(myPosition, extra_space, null));
-                                    }
-                                }
-
-                                if (cur_row == 8 || cur_row == 1) {
-                                    for (PieceType piece : promos) {
-                                        move_set.add(new ChessMove(myPosition, cur_pos, piece));
-                                    }
-                                }
-                                else move_set.add(new ChessMove(myPosition, cur_pos, null));
-                            }
+                            moveSet.addAll(pawnHelperUp(board,curPos,myPosition,curRow,row,curCol));
                         }
                         else{ //if it's moving diagonally it has to take a piece, checks for promotion
-                            if (board.getPiece(cur_pos) != null && board.getPiece(cur_pos).pieceColor != this.pieceColor) {
-                                if (cur_row == 8 || cur_row == 1) {
-                                    for (PieceType piece : promos) {
-                                        move_set.add(new ChessMove(myPosition, cur_pos, piece));
-                                    }
-                                }
-                                else move_set.add(new ChessMove(myPosition, cur_pos, null));
-                            }
+                            moveSet.addAll(pawnHelperDiag(board,curPos,myPosition,curRow));
                         }
                     }
                 }
@@ -253,7 +269,7 @@ public class ChessPiece {
 
         }
 
-        return move_set;
+        return moveSet;
         }
 
 

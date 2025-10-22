@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ClearServiceTest {
     @Test
-    void clear_pos() throws ServiceException {
+    void clearPos() throws ServiceException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var userService = new UserService(da);
@@ -41,7 +41,7 @@ public class ClearServiceTest {
     }
 
     @Test
-    void clear_neg() throws ServiceException {
+    void clearNeg() throws ServiceException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var userService = new UserService(da);

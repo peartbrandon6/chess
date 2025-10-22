@@ -43,7 +43,10 @@ public class GameService extends Service {
     }
 
     public void joinGame(String authToken, JoinGameRequest joinGameRequest) throws ServiceException {
-        if (joinGameRequest.playerColor() == null || !joinGameRequest.playerColor().equals("WHITE") && !joinGameRequest.playerColor().equals("BLACK") || joinGameRequest.gameID() == 0) {
+        if (joinGameRequest.playerColor() == null || joinGameRequest.gameID() == 0) {
+            throw new ServiceException(400, "Error: bad request");
+        }
+        if (!joinGameRequest.playerColor().equals("WHITE") && !joinGameRequest.playerColor().equals("BLACK")) {
             throw new ServiceException(400, "Error: bad request");
         }
         if (!authenticate(authToken)) {

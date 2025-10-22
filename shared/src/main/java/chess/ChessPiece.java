@@ -70,7 +70,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
 
-    private Collection<ChessMove> move_getter(ChessBoard board, ChessPosition myPosition, boolean recurse, int row, int col) {
+    private Collection<ChessMove> moveGetter(ChessBoard board, ChessPosition myPosition, boolean recurse, int row, int col) {
         Set<ChessMove> moves = new HashSet<ChessMove>();
         int curRow, curCol;
         ChessPosition curPos;
@@ -143,27 +143,50 @@ public class ChessPiece {
         return moveSet;
     }
 
+    private Set<ChessMove> knightHelper(ChessBoard board, ChessPosition myPosition){
+        var moveSet = new HashSet<ChessMove>();
+
+        int[] kniarrx = {-2,-1,1,2};
+        int[] kniarry = {-2,-1,1,2};
+
+        for(int row: kniarrx){
+            for(int col: kniarry) {
+                for (ChessMove move: moveGetter(board, myPosition, false, row, col)){
+                    if(Math.abs(row) == Math.abs(col)) continue;
+                    moveSet.add(move);
+                }
+            }
+        }
+
+        return moveSet;
+    }
+
+    private Set<ChessMove> kingHelper(ChessBoard board, ChessPosition myPosition) {
+        var moveSet = new HashSet<ChessMove>();
+        int[] arrx = {-1,0,1};
+        int[] arry = {-1,0,1};
+
+        for(int row: arrx){
+            for(int col: arry) {
+                for (ChessMove move: moveGetter(board, myPosition, false, row, col)){
+                    if(row == 0 && col ==0) {
+                        continue;
+                    }
+                    moveSet.add(move);
+                }
+            }
+        }
+
+        return moveSet;
+    }
+
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
 
         Set<ChessMove> moveSet = new HashSet<ChessMove>();
 
         switch (type) {
             case KING:
-
-                moveSet = new HashSet<ChessMove>();
-                int[] arrx = {-1,0,1};
-                int[] arry = {-1,0,1};
-
-                for(int row: arrx){
-                    for(int col: arry) {
-                        for (ChessMove move: move_getter(board, myPosition, false, row, col)){
-                            if(row == 0 && col ==0) continue;
-                            moveSet.add(move);
-                        }
-                    }
-                }
-
-                return moveSet;
+                return kingHelper(board, myPosition);
 
 
 
@@ -174,7 +197,7 @@ public class ChessPiece {
 
                 for(int row: queenarrx){
                     for(int col: queenarry) {
-                        for (ChessMove move: move_getter(board, myPosition, true, row, col)){
+                        for (ChessMove move: moveGetter(board, myPosition, true, row, col)){
                             moveSet.add(move);
                         }
                     }
@@ -188,7 +211,7 @@ public class ChessPiece {
 
                 for(int row: bisharrx){
                     for(int col: bisharry) {
-                        for (ChessMove move: move_getter(board, myPosition, true, row, col)){
+                        for (ChessMove move: moveGetter(board, myPosition, true, row, col)){
                             moveSet.add(move);
                         }
                     }
@@ -199,21 +222,7 @@ public class ChessPiece {
 
 
             case KNIGHT:
-                    moveSet = new HashSet<ChessMove>();
-
-                    int[] kniarrx = {-2,-1,1,2};
-                    int[] kniarry = {-2,-1,1,2};
-
-                    for(int row: kniarrx){
-                        for(int col: kniarry) {
-                            for (ChessMove move: move_getter(board, myPosition, false, row, col)){
-                                if(Math.abs(row) == Math.abs(col)) continue;
-                                moveSet.add(move);
-                            }
-                        }
-                    }
-
-                    return moveSet;
+                return knightHelper(board, myPosition);
 
             case ROOK:
                 moveSet = new HashSet<ChessMove>();
@@ -222,7 +231,7 @@ public class ChessPiece {
 
                 for(int row: rookarrx){
                     for(int col: rookarry) {
-                        for (ChessMove move: move_getter(board, myPosition, true, row, col)){
+                        for (ChessMove move: moveGetter(board, myPosition, true, row, col)){
                             if(row != 0 && col != 0) {
                                 continue;
                             }

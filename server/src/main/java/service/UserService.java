@@ -25,7 +25,7 @@ public class UserService extends Service{
         if (dataAccess.getUserData(userData.username()) == null){
             dataAccess.putUserData(userData);
         }
-        else throw new ServiceException(403, "Error: already taken");
+        else { throw new ServiceException(403, "Error: already taken"); }
 
         String authToken = makeAuthToken();
         AuthData authdata = new AuthData(authToken, userData.username());
@@ -62,7 +62,7 @@ public class UserService extends Service{
         if(authenticate(authToken)) {
             dataAccess.deleteAuthData(authToken);
         }
-        else throw new ServiceException(401, "Error: unauthorized");
+        else { throw new ServiceException(401, "Error: unauthorized"); }
     }
 
 }

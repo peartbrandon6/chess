@@ -116,8 +116,8 @@ public class ChessGame {
                 board.addPiece(move.getEndPosition(),piece);
                 board.addPiece(move.getStartPosition(),null);
                 // changes team color on successful move
-                if(teamTurn == TeamColor.WHITE) teamTurn = TeamColor.BLACK;
-                else teamTurn = TeamColor.WHITE;
+                if(teamTurn == TeamColor.WHITE) { teamTurn = TeamColor.BLACK; }
+                else { teamTurn = TeamColor.WHITE; }
                 return;
             }
         }
@@ -132,7 +132,9 @@ public class ChessGame {
                 ChessPosition pos = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(pos);
                 // if it is my King piece return the position
-                if (piece != null && piece.getTeamColor() == team && piece.getPieceType() == ChessPiece.PieceType.KING) return pos;
+                if (piece != null && piece.getTeamColor() == team && piece.getPieceType() == ChessPiece.PieceType.KING) {
+                    return pos;
+                }
             }
         }
         throw new RuntimeException("No King found on board");
@@ -198,7 +200,7 @@ public class ChessGame {
         if(isInCheck(teamColor)) {
             //checks if there are no valid moves to make for the team
             return hasTeamMoves(teamColor);
-        } else return false;
+        } else { return false; }
     }
 
     /**
@@ -212,7 +214,7 @@ public class ChessGame {
         if(!isInCheck(teamColor)) {
             //checks if there are no valid moves to make for the team
             return hasTeamMoves(teamColor);
-        } else return false;
+        } else { return false; }
     }
 
     /**

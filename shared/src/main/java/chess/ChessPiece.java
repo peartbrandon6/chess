@@ -113,7 +113,8 @@ public class ChessPiece {
         if (board.getPiece(curPos) == null) {
 
             // Initial move can move two
-            if((this.pieceColor == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2) || (this.pieceColor == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7)){
+            boolean cond = this.pieceColor == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7;
+            if((this.pieceColor == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2) || cond){
                 ChessPosition extraSpace = new ChessPosition(curRow+row, curCol);
                 if(board.getPiece(extraSpace) == null){
                     moveSet.add(new ChessMove(myPosition, extraSpace, null));
@@ -125,7 +126,7 @@ public class ChessPiece {
                     moveSet.add(new ChessMove(myPosition, curPos, piece));
                 }
             }
-            else moveSet.add(new ChessMove(myPosition, curPos, null));
+            else { moveSet.add(new ChessMove(myPosition, curPos, null)); }
         }
         return moveSet;
     }
@@ -138,7 +139,7 @@ public class ChessPiece {
                     moveSet.add(new ChessMove(myPosition, curPos, piece));
                 }
             }
-            else moveSet.add(new ChessMove(myPosition, curPos, null));
+            else { moveSet.add(new ChessMove(myPosition, curPos, null)); }
         }
         return moveSet;
     }
@@ -152,7 +153,7 @@ public class ChessPiece {
         for(int row: kniarrx){
             for(int col: kniarry) {
                 for (ChessMove move: moveGetter(board, myPosition, false, row, col)){
-                    if(Math.abs(row) == Math.abs(col)) continue;
+                    if(Math.abs(row) == Math.abs(col)) { continue; }
                     moveSet.add(move);
                 }
             }
@@ -177,6 +178,24 @@ public class ChessPiece {
             }
         }
 
+        return moveSet;
+    }
+
+    private Set<ChessMove> rookHelper(ChessBoard board, ChessPosition myPosition) {
+        var moveSet = new HashSet<ChessMove>();
+        int[] rookarrx = {-1,0,1};
+        int[] rookarry = {-1,0,1};
+
+        for(int row: rookarrx){
+            for(int col: rookarry) {
+                for (ChessMove move: moveGetter(board, myPosition, true, row, col)){
+                    if(row != 0 && col != 0) {
+                        continue;
+                    }
+                    moveSet.add(move);
+                }
+            }
+        }
         return moveSet;
     }
 
@@ -225,21 +244,7 @@ public class ChessPiece {
                 return knightHelper(board, myPosition);
 
             case ROOK:
-                moveSet = new HashSet<ChessMove>();
-                int[] rookarrx = {-1,0,1};
-                int[] rookarry = {-1,0,1};
-
-                for(int row: rookarrx){
-                    for(int col: rookarry) {
-                        for (ChessMove move: moveGetter(board, myPosition, true, row, col)){
-                            if(row != 0 && col != 0) {
-                                continue;
-                            }
-                            moveSet.add(move);
-                        }
-                    }
-                }
-                return moveSet;
+                return rookHelper(board,myPosition);
 
 
             case PAWN:

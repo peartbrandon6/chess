@@ -65,6 +65,6 @@ public class GameService extends Service {
         else if(joinGameRequest.playerColor().equals("BLACK") && game.blackUsername() == null){
             dataAccess.putGameData(new GameData(game.gameID(), game.whiteUsername(), username,game.gameName(),game.game()));
         }
-        else throw new ServiceException(403, "Error: already taken");
+        else { throw new ServiceException(403, "Error: already taken"); }
     }
 }

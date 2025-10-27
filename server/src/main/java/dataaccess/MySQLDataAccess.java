@@ -53,51 +53,60 @@ public class MySQLDataAccess implements DataAccess{
         }
     }
 
-    public AuthData getAuthData(String authToken) {
+    public AuthData getAuthData(String authToken) throws ErrorException{
         //return authdata.get(authToken);
         return null;
     }
 
-    public GameData getGameData(Integer gameID) {
+    public GameData getGameData(Integer gameID) throws ErrorException{
         return null;
         //return gamedata.get(gameID);
     }
 
-    public GameData[] getAllGameData(){
+    public GameData[] getAllGameData() throws ErrorException{
         return null;
         //return gamedata.values().toArray(new GameData[gamedata.size()]);
     }
 
-    public UserData getUserData(String username) {
+    public UserData getUserData(String username) throws ErrorException{
         return null;
         //return userdata.get(username);
     }
 
-    public void putAuthData(AuthData data) {
+    public void putAuthData(AuthData data) throws ErrorException{
         //authdata.put(data.authToken(), data);
+        try (var conn = DatabaseManager.getConnection()){
+            var statement = "INSERT INTO authdata (authtoken, username) VALUES (?, ?)";
+            PreparedStatement ps = conn.prepareStatement(statement);
+            ps.setString(1,data.authToken());
+            ps.setString(2,data.username());
+            ps.executeUpdate();
+        } catch(Exception e){
+            throw new ErrorException(500, e.getMessage());
+        }
     }
 
-    public void putGameData(GameData data) {
+    public void putGameData(GameData data) throws ErrorException{
         //gamedata.put(data.gameID(), data);
     }
 
-    public void putUserData(UserData data) {
+    public void putUserData(UserData data) throws ErrorException{
         //userdata.put(data.username(),data);
     }
 
-    public void clearAuthData() {
+    public void clearAuthData() throws ErrorException{
         //authdata.clear();
     }
 
-    public void clearGameData() {
+    public void clearGameData() throws ErrorException{
         //gamedata.clear();
     }
 
-    public void clearUserData() {
+    public void clearUserData() throws ErrorException{
         //userdata.clear();
     }
 
-    public void deleteAuthData(String authToken) {
+    public void deleteAuthData(String authToken) throws ErrorException{
         //authdata.remove(authToken);
     }
 }

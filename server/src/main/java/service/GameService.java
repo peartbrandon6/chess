@@ -19,7 +19,7 @@ public class GameService extends Service {
         return dataAccess.getAllGameData();
     }
 
-    private int createGameID() {
+    private int createGameID() throws ErrorException{
         int id = 1;
         while (dataAccess.getGameData(id) != null) {
             id++;

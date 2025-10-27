@@ -1,7 +1,7 @@
 package service;
 
 import dataaccess.MemoryDataAccess;
-import exceptions.ServiceException;
+import exceptions.ErrorException;
 import model.*;
 import org.junit.jupiter.api.*;
 
@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GameServiceTest {
 
     @Test
-    void listGamesPos() throws ServiceException {
+    void listGamesPos() throws ErrorException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var userService = new UserService(da);
@@ -37,7 +37,7 @@ public class GameServiceTest {
     }
 
     @Test
-    void listGamesNeg() throws ServiceException {
+    void listGamesNeg() throws ErrorException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var userService = new UserService(da);
@@ -57,12 +57,12 @@ public class GameServiceTest {
         gameIDs[1] = gameID2;
         gameIDs[2] = gameID3;
 
-        assertThrows(ServiceException.class, () -> gameService.listGames("I am a fake authToken"));
+        assertThrows(ErrorException.class, () -> gameService.listGames("I am a fake authToken"));
 
     }
 
     @Test
-    void createGamePos() throws ServiceException {
+    void createGamePos() throws ErrorException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var userService = new UserService(da);
@@ -77,7 +77,7 @@ public class GameServiceTest {
     }
 
     @Test
-    void createGameNeg() throws ServiceException {
+    void createGameNeg() throws ErrorException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var userService = new UserService(da);
@@ -88,11 +88,11 @@ public class GameServiceTest {
         userService.register(new UserData("joe","j@j","j"));
         AuthData authdata = userService.login(user);
 
-        assertThrows(ServiceException.class, () -> gameService.createGame(authdata.authToken(), request));
+        assertThrows(ErrorException.class, () -> gameService.createGame(authdata.authToken(), request));
     }
 
     @Test
-    void joinGamePos() throws ServiceException {
+    void joinGamePos() throws ErrorException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var userService = new UserService(da);
@@ -111,7 +111,7 @@ public class GameServiceTest {
     }
 
     @Test
-    void joinGameNeg() throws ServiceException {
+    void joinGameNeg() throws ErrorException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var userService = new UserService(da);
@@ -125,6 +125,6 @@ public class GameServiceTest {
 
         gameService.joinGame(authdata.authToken(),gameRequest);
 
-        assertThrows(ServiceException.class, () -> gameService.joinGame(authdata.authToken(),gameRequest));
+        assertThrows(ErrorException.class, () -> gameService.joinGame(authdata.authToken(),gameRequest));
     }
 }

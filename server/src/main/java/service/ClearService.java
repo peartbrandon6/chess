@@ -1,20 +1,20 @@
 package service;
 
 import dataaccess.DataAccess;
-import exceptions.ServiceException;
+import exceptions.ErrorException;
 
 public class ClearService extends Service{
     public ClearService(DataAccess dataAccess){
         super(dataAccess);
     }
 
-    public void clear() throws ServiceException {
+    public void clear() throws ErrorException {
         try {
             dataAccess.clearAuthData();
             dataAccess.clearGameData();
             dataAccess.clearUserData();
         } catch(Exception e) {
-            throw new ServiceException(500, e.getMessage());
+            throw new ErrorException(500, e.getMessage());
         }
     }
 

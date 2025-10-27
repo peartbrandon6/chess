@@ -1,7 +1,7 @@
 package service;
 
 import dataaccess.MemoryDataAccess;
-import exceptions.ServiceException;
+import exceptions.ErrorException;
 import model.*;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ClearServiceTest {
     @Test
-    void clearPos() throws ServiceException {
+    void clearPos() throws ErrorException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var userService = new UserService(da);
@@ -37,6 +37,6 @@ public class ClearServiceTest {
 
         clearService.clear();
 
-        assertThrows(ServiceException.class, () -> gameService.listGames(authdata.authToken()));
+        assertThrows(ErrorException.class, () -> gameService.listGames(authdata.authToken()));
     }
 }

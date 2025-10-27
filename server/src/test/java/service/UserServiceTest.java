@@ -1,7 +1,7 @@
 package service;
 
 import dataaccess.MemoryDataAccess;
-import exceptions.ServiceException;
+import exceptions.ErrorException;
 import model.AuthData;
 import model.LoginRequest;
 import model.UserData;
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserServiceTest {
 
     @Test
-    void registerPos() throws ServiceException {
+    void registerPos() throws ErrorException {
         UserData user = new UserData("joe","j@j","j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);
@@ -24,17 +24,17 @@ class UserServiceTest {
     }
 
     @Test
-    void registerNeg() throws ServiceException {
+    void registerNeg() throws ErrorException {
         UserData user = new UserData("joe","j@j","j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);
         AuthData result = service.register(user);
 
-        assertThrows(ServiceException.class, () -> service.register(user));
+        assertThrows(ErrorException.class, () -> service.register(user));
     }
 
     @Test
-    void loginPos() throws ServiceException {
+    void loginPos() throws ErrorException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);
@@ -47,18 +47,18 @@ class UserServiceTest {
     }
 
     @Test
-    void loginNeg() throws ServiceException {
+    void loginNeg() throws ErrorException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);
         service.register(new UserData("joe","j@j","j"));
         AuthData result = service.login(user);
 
-        assertThrows(ServiceException.class, () -> service.login(new LoginRequest("johnny","john")));
+        assertThrows(ErrorException.class, () -> service.login(new LoginRequest("johnny","john")));
     }
 
     @Test
-    void logoutPos() throws ServiceException {
+    void logoutPos() throws ErrorException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);
@@ -70,7 +70,7 @@ class UserServiceTest {
     }
 
     @Test
-    void logoutNeg() throws ServiceException {
+    void logoutNeg() throws ErrorException {
         LoginRequest user = new LoginRequest("joe","j@j");
         var da = new MemoryDataAccess();
         var service = new UserService(da);
@@ -78,6 +78,6 @@ class UserServiceTest {
         AuthData authdata = service.login(user);
         service.logout(authdata.authToken());
 
-        assertThrows(ServiceException.class, () -> service.logout(authdata.authToken()));
+        assertThrows(ErrorException.class, () -> service.logout(authdata.authToken()));
     }
 }

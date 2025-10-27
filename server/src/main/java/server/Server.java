@@ -55,7 +55,7 @@ public class Server {
         try {
             clearService.clear();
             ctx.result("{}");
-        } catch (ServiceException e) {
+        } catch (ErrorException e) {
             ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
         }
     }
@@ -65,7 +65,7 @@ public class Server {
         try {
             AuthData res = userService.register(data);
             ctx.result(gson.toJson(res));
-        } catch (ServiceException e){
+        } catch (ErrorException e){
             ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
         }
     }
@@ -75,7 +75,7 @@ public class Server {
             LoginRequest data = gson.fromJson(ctx.body(), LoginRequest.class);
             AuthData res = userService.login(data);
             ctx.result(gson.toJson(res));
-        } catch (ServiceException e){
+        } catch (ErrorException e){
             ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
         } catch (JsonSyntaxException e){
             ctx.status(400).result(gson.toJson(new ErrorResponse("Error: bad request")));
@@ -87,7 +87,7 @@ public class Server {
         try{
             userService.logout(auth);
             ctx.result("{}");
-        } catch (ServiceException e){
+        } catch (ErrorException e){
             ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
         }
 
@@ -98,7 +98,7 @@ public class Server {
         try{
             GameData[] games = gameService.listGames(auth);
             ctx.result(gson.toJson(new ListGamesResponse(games)));
-        } catch (ServiceException e){
+        } catch (ErrorException e){
             ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
         }
     }
@@ -109,7 +109,7 @@ public class Server {
         try{
             int id = gameService.createGame(auth, req);
             ctx.result(gson.toJson(new CreateGameResponse(id)));
-        } catch (ServiceException e){
+        } catch (ErrorException e){
             ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
         }
     }
@@ -120,7 +120,7 @@ public class Server {
             JoinGameRequest req = gson.fromJson(ctx.body(), JoinGameRequest.class);
             gameService.joinGame(auth,req);
             ctx.result("{}");
-        } catch (ServiceException e){
+        } catch (ErrorException e){
             ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
         } catch (JsonSyntaxException e){
             ctx.status(401).result(gson.toJson(new ErrorResponse("Error: unauthorized")));

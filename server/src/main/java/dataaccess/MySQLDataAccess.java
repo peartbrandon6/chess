@@ -1,6 +1,8 @@
 package dataaccess;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import exceptions.ErrorException;
 import model.AuthData;
 import model.GameData;
@@ -78,8 +80,24 @@ public class MySQLDataAccess implements DataAccess{
     }
 
     public GameData getGameData(Integer gameID) throws ErrorException{
+        try (var conn = DatabaseManager.getConnection()){
+            var statement = "SELECT * FROM gamedata WHERE gameid = ?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, gameID);
+                try (ResultSet set = ps.executeQuery()) {
+                    if (set.next()) {
+                        String whiteUsername = set.getString(2);
+                        String blackUsername = set.getString(3);
+                        String gameName = set.getString(4);
+                        ChessGame game = gson.fromJson(set.getString(5), ChessGame.class);
+                        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+                    }
+                }
+            }
+        } catch(Exception e){
+            throw new ErrorException(500, e.getMessage());
+        }
         return null;
-        //return gamedata.get(gameID);
     }
 
     public GameData[] getAllGameData() throws ErrorException{
@@ -88,17 +106,32 @@ public class MySQLDataAccess implements DataAccess{
     }
 
     public UserData getUserData(String username) throws ErrorException{
+        try (var conn = DatabaseManager.getConnection()){
+            var statement = "SELECT * FROM userdata WHERE username = ?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (ResultSet set = ps.executeQuery()) {
+                    if (set.next()) {
+                        String password = set.getString(2);
+                        String email = set.getString(3);
+                        return new UserData(username, password, email);
+                    }
+                }
+            }
+        } catch(Exception e){
+            throw new ErrorException(500, e.getMessage());
+        }
         return null;
-        //return userdata.get(username);
     }
 
     public void putAuthData(AuthData data) throws ErrorException{
         try (var conn = DatabaseManager.getConnection()){
             var statement = "INSERT INTO authdata (authtoken, username) VALUES (?, ?)";
-            PreparedStatement ps = conn.prepareStatement(statement);
-            ps.setString(1,data.authToken());
-            ps.setString(2,data.username());
-            ps.executeUpdate();
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, data.authToken());
+                ps.setString(2, data.username());
+                ps.executeUpdate();
+            }
         } catch(Exception e){
             throw new ErrorException(500, e.getMessage());
         }
@@ -107,13 +140,14 @@ public class MySQLDataAccess implements DataAccess{
     public void putGameData(GameData data) throws ErrorException{
         try (var conn = DatabaseManager.getConnection()){
             var statement = "INSERT INTO gamedata (gameid, whiteusername, blackusername, gamename, game) VALUES (?, ?, ?, ?, ?)";
-            PreparedStatement ps = conn.prepareStatement(statement);
-            ps.setInt(1,data.gameID());
-            ps.setString(2,data.whiteUsername());
-            ps.setString(3,data.blackUsername());
-            ps.setString(4,data.gameName());
-            ps.setString(5, gson.toJson(data.game()));
-            ps.executeUpdate();
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, data.gameID());
+                ps.setString(2, data.whiteUsername());
+                ps.setString(3, data.blackUsername());
+                ps.setString(4, data.gameName());
+                ps.setString(5, gson.toJson(data.game()));
+                ps.executeUpdate();
+            }
         } catch(Exception e){
             throw new ErrorException(500, e.getMessage());
         }
@@ -122,11 +156,12 @@ public class MySQLDataAccess implements DataAccess{
     public void putUserData(UserData data) throws ErrorException{
         try (var conn = DatabaseManager.getConnection()){
             var statement = "INSERT INTO userdata (username, password, email) VALUES (?, ?, ?)";
-            PreparedStatement ps = conn.prepareStatement(statement);
-            ps.setString(1,data.username());
-            ps.setString(2,data.password());
-            ps.setString(3,data.email());
-            ps.executeUpdate();
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, data.username());
+                ps.setString(2, data.password());
+                ps.setString(3, data.email());
+                ps.executeUpdate();
+            }
         } catch(Exception e){
             throw new ErrorException(500, e.getMessage());
         }
@@ -155,6 +190,13 @@ public class MySQLDataAccess implements DataAccess{
     }
 
     public void deleteAuthData(String authToken) throws ErrorException{
-        //authdata.remove(authToken);
+        try (var conn = DatabaseManager.getConnection()){
+            try (var statement = conn.prepareStatement("DELETE FROM authdata WHERE authtoken = ?")) {
+                statement.setString(1, authToken);
+                statement.executeUpdate();
+            }
+        } catch(Exception e){
+            throw new ErrorException(500, e.getMessage());
+        }
     }
 }

@@ -17,7 +17,7 @@ public class MySQLDataAccess implements DataAccess{
               authtoken varchar(128) NOT NULL,
               username varchar(64) NOT NULL,
               PRIMARY KEY (authtoken),
-              INDEX(name)
+              INDEX(username)
             )
             """,
 
@@ -59,7 +59,21 @@ public class MySQLDataAccess implements DataAccess{
     }
 
     public AuthData getAuthData(String authToken) throws ErrorException{
-        //return authdata.get(authToken);
+        try (var conn = DatabaseManager.getConnection()){
+            var statement = "SELECT * FROM authdata WHERE authtoken = ?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                try (ResultSet set = ps.executeQuery()) {
+                    if (set.next()) {
+                        String auth = set.getString(1);
+                        String username = set.getString(2);
+                        return new AuthData(auth, username);
+                    }
+                }
+            }
+        } catch(Exception e){
+            throw new ErrorException(500, e.getMessage());
+        }
         return null;
     }
 
@@ -107,7 +121,7 @@ public class MySQLDataAccess implements DataAccess{
 
     public void putUserData(UserData data) throws ErrorException{
         try (var conn = DatabaseManager.getConnection()){
-            var statement = "INSERT INTO userdata (authtoken, username) VALUES (?, ?)";
+            var statement = "INSERT INTO userdata (username, password, email) VALUES (?, ?, ?)";
             PreparedStatement ps = conn.prepareStatement(statement);
             ps.setString(1,data.username());
             ps.setString(2,data.password());
@@ -129,15 +143,15 @@ public class MySQLDataAccess implements DataAccess{
     }
 
     public void clearAuthData() throws ErrorException{
-        execute("DROP TABLE authdata");
+        execute("DELETE FROM authdata");
     }
 
     public void clearGameData() throws ErrorException{
-        execute("DROP TABLE gamedata");
+        execute("DELETE FROM gamedata");
     }
 
     public void clearUserData() throws ErrorException{
-        execute("DROP TABLE userdata");
+        execute("DELETE FROM userdata");
     }
 
     public void deleteAuthData(String authToken) throws ErrorException{

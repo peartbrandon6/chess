@@ -3,7 +3,11 @@ package dataaccess;
 import dataaccess.MySQLDataAccess;
 import exceptions.ErrorException;
 import model.*;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.sql.PreparedStatement;
 
 public class MySQLDataAccessTests {
     public MySQLDataAccess makeDataAccess() {
@@ -16,12 +20,42 @@ public class MySQLDataAccessTests {
         return dataAccess;
     }
 
+
+
     @Test
-    void testGetAuthDataPositive() throws ErrorException {
+    void testGetAuthDataPositive() throws Exception {
+        try (var conn = DatabaseManager.getConnection()){
+            var statement = "INSERT INTO authdata (authtoken, username) VALUES (?, ?)";
+            PreparedStatement ps = conn.prepareStatement(statement);
+            ps.setString(1,"This is an authToken");
+            ps.setString(2,"MyUsername");
+            ps.executeUpdate();
+        }
+        var da = makeDataAccess();
+        var authdata = da.getAuthData("This is an authToken");
+
+        assertEquals("This is an authToken", authdata.authToken());
+        assertEquals("MyUsername", authdata.username());
     }
 
     @Test
     void testGetAuthDataNegative() {
+        try (var conn = DatabaseManager.getConnection()){
+            var statement = "INSERT INTO authdata (authtoken, username) VALUES (?, ?)";
+            PreparedStatement ps = conn.prepareStatement(statement);
+            ps.setString(1,"authToken");
+            ps.setString(2,"Username");
+            ps.executeUpdate();
+            var da = makeDataAccess();
+            var authdata = da.getAuthData("not an authToken");
+            assertNull(authdata);
+        } catch (Exception e) {
+            fail("Something went wrong with the connection");
+        }
+
+
+
+
     }
 
     @Test
@@ -49,7 +83,10 @@ public class MySQLDataAccessTests {
     }
 
     @Test
-    void testPutAuthDataPositive() throws ErrorException {
+    void testPutAuthDataPositive() throws Exception {
+
+
+
     }
 
     @Test

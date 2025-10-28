@@ -120,8 +120,9 @@ public class MySQLDataAccess implements DataAccess{
 
     private void execute(String sql) throws ErrorException{
         try (var conn = DatabaseManager.getConnection()){
-            var statement = conn.createStatement();
-            statement.executeUpdate(sql);
+            try (var statement = conn.prepareStatement(sql)) {
+                statement.executeUpdate(sql);
+            }
         } catch(Exception e){
             throw new ErrorException(500, e.getMessage());
         }

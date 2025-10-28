@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
+import dataaccess.MySQLDataAccess;
 import exceptions.*;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -30,16 +31,23 @@ public class Server {
     private final ClearService clearService;
     private final UserService userService;
     private final GameService gameService;
-    private final DataAccess dataAccess;
+    private DataAccess dataAccess;
     private final Gson gson;
 
     public Server() {
         server = Javalin.create(config -> config.staticFiles.add("web"));
-        dataAccess = new MemoryDataAccess();
+
+        try {
+            dataAccess = new MySQLDataAccess();
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to start MySQL database");
+        }
+
         clearService = new ClearService(dataAccess);
         userService = new UserService(dataAccess);
         gameService = new GameService(dataAccess);
         gson = new Gson();
+
 
         // Register your endpoints and exception handlers here.
         server.delete("db", this::clear);
@@ -49,6 +57,11 @@ public class Server {
         server.get("game", this::listGames);
         server.post("game", this::createGame);
         server.put("game", this::joinGame);
+        server.exception(ErrorException.class, this::exceptionHandler);
+    }
+
+    private void exceptionHandler(ErrorException e, Context ctx){
+        ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
     }
 
     private void clear(Context ctx){

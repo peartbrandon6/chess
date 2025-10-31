@@ -14,6 +14,7 @@ public interface DataAccess {
     public void putAuthData(AuthData data) throws ErrorException;
     public void putGameData(GameData data) throws ErrorException;
     public void putUserData(UserData data) throws ErrorException;
+    public void updateGameData(GameData data) throws ErrorException;
 
     public void clearAuthData() throws ErrorException;
     public void clearGameData() throws ErrorException;

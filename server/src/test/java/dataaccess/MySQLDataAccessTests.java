@@ -1,8 +1,9 @@
 package dataaccess;
 
-import dataaccess.MySQLDataAccess;
+import chess.ChessGame;
+import com.google.gson.Gson;
 import exceptions.ErrorException;
-import model.*;
+import model.GameData;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,6 +37,10 @@ public class MySQLDataAccessTests {
 
         assertEquals("This is an authToken", authdata.authToken());
         assertEquals("MyUsername", authdata.username());
+
+        da.clearAuthData();
+        da.clearGameData();
+        da.clearUserData();
     }
 
     @Test
@@ -49,21 +54,55 @@ public class MySQLDataAccessTests {
             var da = makeDataAccess();
             var authdata = da.getAuthData("not an authToken");
             assertNull(authdata);
+
+            da.clearAuthData();
+            da.clearGameData();
+            da.clearUserData();
         } catch (Exception e) {
             fail("Something went wrong with the connection");
         }
-
-
-
-
     }
 
     @Test
     void testGetGameDataPositive() throws ErrorException {
+        var gson = new Gson();
+        var da = makeDataAccess();
+        da.clearAuthData();
+        da.clearGameData();
+        da.clearUserData();
+        var data = new GameData(1,"john","george","the game", new ChessGame());
+
+        System.out.println(gson.toJson(data.game()));
+
+        da.putGameData(data);
+
+        var gamedata = da.getGameData(1);
+        assertInstanceOf(ChessGame.class, gamedata.game());
+
+        da.clearAuthData();
+        da.clearGameData();
+        da.clearUserData();
     }
 
     @Test
     void testGetGameDataNegative() {
+        try (var conn = DatabaseManager.getConnection()){
+            var statement = "INSERT INTO gamedata (authtoken, username) VALUES (?, ?)";
+            PreparedStatement ps = conn.prepareStatement(statement);
+            ps.setString(1,"authToken");
+            ps.setString(2,"Username");
+            ps.executeUpdate();
+            var da = makeDataAccess();
+            da.putGameData(new GameData(1,"john","george","the game", new ChessGame()));
+            var gamedata = da.getGameData(1);
+            assertNull(gamedata);
+
+            da.clearAuthData();
+            da.clearGameData();
+            da.clearUserData();
+        } catch (Exception e) {
+            fail("Something went wrong with the connection");
+        }
     }
 
     @Test

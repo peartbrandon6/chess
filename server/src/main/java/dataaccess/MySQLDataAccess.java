@@ -34,7 +34,7 @@ public class MySQLDataAccess implements DataAccess{
 
             """
             CREATE TABLE IF NOT EXISTS gamedata (
-                gameID int NOT NULL,
+                gameID int NOT NULL AUTO_INCREMENT,
                 whiteusername varchar(64),
                 blackusername varchar(64),
                 gamename varchar(64) NOT NULL,
@@ -100,8 +100,35 @@ public class MySQLDataAccess implements DataAccess{
     }
 
     public GameData[] getAllGameData() throws ErrorException{
-        return null;
-        //return gamedata.values().toArray(new GameData[gamedata.size()]);
+        GameData[] allGameData = new GameData[0];
+        try (var conn = DatabaseManager.getConnection()){
+            try (var stmt = conn.prepareStatement("SELECT COUNT(*) FROM gamedata")) {
+                try (ResultSet rs = stmt.executeQuery()){
+                    if (rs.next()) {
+                        int length = rs.getInt(1);
+                        allGameData = new GameData[length];
+                    }
+                }
+            }
+            var statement = "SELECT * FROM gamedata";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet set = ps.executeQuery()) {
+                    int i = 0;
+                    while (set.next()) {
+                        int gameID = set.getInt(1);
+                        String whiteUsername = set.getString(2);
+                        String blackUsername = set.getString(3);
+                        String gameName = set.getString(4);
+                        ChessGame game = gson.fromJson(set.getString(5), ChessGame.class);
+                        allGameData[i] = new GameData(gameID,whiteUsername,blackUsername,gameName,game);
+                        i++;
+                    }
+                }
+            }
+        } catch(Exception e){
+            throw new ErrorException(500, e.getMessage());
+        }
+        return allGameData;
     }
 
     public UserData getUserData(String username) throws ErrorException{
@@ -137,17 +164,36 @@ public class MySQLDataAccess implements DataAccess{
     }
 
     public void putGameData(GameData data) throws ErrorException{
+        var statement = "INSERT INTO gamedata (gameid, whiteusername, blackusername, gamename, game) VALUES (?, ?, ?, ?, ?)";
+        String json = gson.toJson(data);
         try (var conn = DatabaseManager.getConnection()){
-            var statement = "INSERT INTO gamedata (gameid, whiteusername, blackusername, gamename, game) VALUES (?, ?, ?, ?, ?)";
+
+
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, data.gameID());
                 ps.setString(2, data.whiteUsername());
                 ps.setString(3, data.blackUsername());
                 ps.setString(4, data.gameName());
-                ps.setString(5, gson.toJson(data.game()));
+                ps.setString(5, json);
                 ps.executeUpdate();
             }
         } catch(Exception e){
+            throw new ErrorException(500, e.getMessage());
+        }
+    }
+
+    public void updateGameData(GameData data) throws ErrorException{
+        var statement = "UPDATE gamedata SET whiteusername = ?, blackusername = ?, game = ? WHERE gameid = ?";
+        String json = gson.toJson(data);
+        try (var conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, data.whiteUsername());
+                ps.setString(2, data.blackUsername());
+                ps.setString(3, json);
+                ps.setInt(4, data.gameID());
+                ps.executeUpdate();
+            }
+        } catch (Exception e) {
             throw new ErrorException(500, e.getMessage());
         }
     }

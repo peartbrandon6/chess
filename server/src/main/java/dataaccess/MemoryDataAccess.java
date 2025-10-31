@@ -39,6 +39,10 @@ public class MemoryDataAccess implements DataAccess{
         userdata.put(data.username(),data);
     }
 
+    public void updateGameData(GameData data) {
+        gamedata.put(data.gameID(), data);
+    }
+
     public void clearAuthData() {
         authdata.clear();
     }

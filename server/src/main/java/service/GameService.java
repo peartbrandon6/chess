@@ -60,10 +60,10 @@ public class GameService extends Service {
 
         // adds player to game
         if(joinGameRequest.playerColor().equals("WHITE") && game.whiteUsername() == null){
-            dataAccess.putGameData(new GameData(game.gameID(), username, game.blackUsername(),game.gameName(),game.game()));
+            dataAccess.updateGameData(new GameData(game.gameID(), username, game.blackUsername(),game.gameName(),game.game()));
         }
         else if(joinGameRequest.playerColor().equals("BLACK") && game.blackUsername() == null){
-            dataAccess.putGameData(new GameData(game.gameID(), game.whiteUsername(), username,game.gameName(),game.game()));
+            dataAccess.updateGameData(new GameData(game.gameID(), game.whiteUsername(), username,game.gameName(),game.game()));
         }
         else { throw new ErrorException(403, "Error: already taken"); }
     }

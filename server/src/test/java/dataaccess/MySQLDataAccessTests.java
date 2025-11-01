@@ -65,14 +65,11 @@ public class MySQLDataAccessTests {
 
     @Test
     void testGetGameDataPositive() throws ErrorException {
-        var gson = new Gson();
         var da = makeDataAccess();
         da.clearAuthData();
         da.clearGameData();
         da.clearUserData();
         var data = new GameData(1,"john","george","the game", new ChessGame());
-
-        System.out.println(gson.toJson(data.game()));
 
         da.putGameData(data);
 
@@ -87,14 +84,9 @@ public class MySQLDataAccessTests {
     @Test
     void testGetGameDataNegative() {
         try (var conn = DatabaseManager.getConnection()){
-            var statement = "INSERT INTO gamedata (authtoken, username) VALUES (?, ?)";
-            PreparedStatement ps = conn.prepareStatement(statement);
-            ps.setString(1,"authToken");
-            ps.setString(2,"Username");
-            ps.executeUpdate();
             var da = makeDataAccess();
             da.putGameData(new GameData(1,"john","george","the game", new ChessGame()));
-            var gamedata = da.getGameData(1);
+            var gamedata = da.getGameData(5);
             assertNull(gamedata);
 
             da.clearAuthData();
@@ -107,10 +99,42 @@ public class MySQLDataAccessTests {
 
     @Test
     void testGetAllGameDataPositive() throws ErrorException {
+        try (var conn = DatabaseManager.getConnection()){
+            var da = makeDataAccess();
+            var game1 = new GameData(1,"john","george","the game 1", new ChessGame());
+            var game2 = new GameData(2,"billy","bob","the game 2", new ChessGame());
+            da.putGameData(game1);
+            da.putGameData(game2);
+
+            assertEquals(game1, da.getAllGameData()[0]);
+            assertEquals(game2, da.getAllGameData()[1]);
+
+            da.clearAuthData();
+            da.clearGameData();
+            da.clearUserData();
+        } catch (Exception e) {
+            fail("Something went wrong with the connection");
+        }
     }
 
     @Test
     void testGetAllGameDataNegative() {
+        try (var conn = DatabaseManager.getConnection()){
+            var da = makeDataAccess();
+            var game3 = new GameData(1,"john","george","the game 1", new ChessGame());
+            var game4 = new GameData(2,"billy","bob","the game 2", new ChessGame());
+            da.putGameData(game3);
+            da.putGameData(game4);
+
+            assertNotEquals(game4, da.getAllGameData()[0]);
+            assertNotEquals(game3, da.getAllGameData()[1]);
+
+            da.clearAuthData();
+            da.clearGameData();
+            da.clearUserData();
+        } catch (Exception e) {
+            fail("Something went wrong with the connection");
+        }
     }
 
     @Test

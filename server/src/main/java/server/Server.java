@@ -14,6 +14,7 @@ import service.ClearService;
 import service.GameService;
 import service.UserService;
 
+import java.util.Map;
 
 
 record ErrorResponse(String message){
@@ -61,7 +62,7 @@ public class Server {
     }
 
     private void exceptionHandler(ErrorException e, Context ctx){
-        ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
+        ctx.status(e.code).result(gson.toJson(Map.of("message", e.getMessage(), "status", e.code)));
     }
 
     private void clear(Context ctx){

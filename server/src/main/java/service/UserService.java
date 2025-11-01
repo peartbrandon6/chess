@@ -5,6 +5,7 @@ import exceptions.ErrorException;
 import model.AuthData;
 import model.UserData;
 import model.LoginRequest;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.UUID;
 
@@ -23,7 +24,8 @@ public class UserService extends Service{
         }
 
         if (dataAccess.getUserData(userData.username()) == null){
-            dataAccess.putUserData(userData);
+            String hash = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+            dataAccess.putUserData(new UserData(userData.username(), hash, userData.email()));
         }
         else { throw new ErrorException(403, "Error: already taken"); }
 
@@ -44,7 +46,7 @@ public class UserService extends Service{
             throw new ErrorException(401, "Error: unauthorized");
         }
 
-        if(dbData.password().equals(userData.password())){
+        if(BCrypt.checkpw(userData.password(), dbData.password())){
             AuthData authData = new AuthData(makeAuthToken(), userData.username());
             dataAccess.putAuthData(authData);
             return authData;

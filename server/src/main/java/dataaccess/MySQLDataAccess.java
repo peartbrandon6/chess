@@ -158,7 +158,7 @@ public class MySQLDataAccess implements DataAccess{
                 ps.setString(2, data.username());
                 ps.executeUpdate();
             }
-        } catch(Exception e){
+        } catch(SQLException e){
             throw new ErrorException(500, e.getMessage());
         }
     }

@@ -54,8 +54,8 @@ public class MySQLDataAccess implements DataAccess{
                 }
             }
         }
-        catch(Exception e){
-            throw new ErrorException(500, e.getMessage());
+        catch(SQLException e){
+            throw new ErrorException(500, String.format("Error: unable to configure database: %s", e.getMessage()));
         }
     }
 
@@ -72,7 +72,7 @@ public class MySQLDataAccess implements DataAccess{
                     }
                 }
             }
-        } catch(Exception e){
+        } catch(SQLException e){
             throw new ErrorException(500, e.getMessage());
         }
         return null;
@@ -177,7 +177,7 @@ public class MySQLDataAccess implements DataAccess{
                 ps.setString(5, json);
                 ps.executeUpdate();
             }
-        } catch(Exception e){
+        } catch(SQLException e){
             throw new ErrorException(500, e.getMessage());
         }
     }
@@ -193,7 +193,7 @@ public class MySQLDataAccess implements DataAccess{
                 ps.setInt(4, data.gameID());
                 ps.executeUpdate();
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new ErrorException(500, e.getMessage());
         }
     }
@@ -207,17 +207,17 @@ public class MySQLDataAccess implements DataAccess{
                 ps.setString(3, data.email());
                 ps.executeUpdate();
             }
-        } catch(Exception e){
+        } catch(SQLException e){
             throw new ErrorException(500, e.getMessage());
         }
     }
 
     private void execute(String sql) throws ErrorException{
         try (var conn = DatabaseManager.getConnection()){
-            try (var statement = conn.prepareStatement(sql)) {
+            try (var statement = conn.createStatement()) {
                 statement.executeUpdate(sql);
             }
-        } catch(Exception e){
+        } catch(SQLException e){
             throw new ErrorException(500, e.getMessage());
         }
     }

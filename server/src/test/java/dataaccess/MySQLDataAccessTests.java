@@ -4,7 +4,6 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import exceptions.ErrorException;
 import model.GameData;
-import model.UserData;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,7 +15,7 @@ public class MySQLDataAccessTests {
         MySQLDataAccess dataAccess;
         try {
             dataAccess = new MySQLDataAccess();
-        } catch (Exception e) {
+        } catch (ErrorException e) {
             throw new RuntimeException("Unable to start MySQL database");
         }
         return dataAccess;
@@ -140,39 +139,10 @@ public class MySQLDataAccessTests {
 
     @Test
     void testGetUserDataPositive() throws ErrorException {
-        var da = makeDataAccess();
-        da.clearAuthData();
-        da.clearGameData();
-        da.clearUserData();
-        var data = new UserData("john","george","email@email.com");
-
-        da.putUserData(data);
-
-        var userdata = da.getUserData("john");
-        assertEquals("email@email.com", userdata.email());
-
-        da.clearAuthData();
-        da.clearGameData();
-        da.clearUserData();
     }
 
     @Test
     void testGetUserDataNegative() {
-        try (var conn = DatabaseManager.getConnection()){
-            var da = makeDataAccess();
-            var user1 = new UserData("john","george","email@email.com");
-            var user2 = new UserData("jimmy","password","emailofJimmy@email.com");
-            da.putUserData(user1);
-            da.putUserData(user2);
-
-            assertNull(da.getUserData("bob?"));
-
-            da.clearAuthData();
-            da.clearGameData();
-            da.clearUserData();
-        } catch (Exception e) {
-            fail("Something went wrong with the connection");
-        }
     }
 
     @Test

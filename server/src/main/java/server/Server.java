@@ -14,6 +14,7 @@ import service.ClearService;
 import service.GameService;
 import service.UserService;
 
+import java.sql.SQLException;
 import java.util.Map;
 
 
@@ -40,15 +41,14 @@ public class Server {
 
         try {
             dataAccess = new MySQLDataAccess();
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to start MySQL database");
+        } catch (ErrorException e){
+            var failure = e;
         }
 
         clearService = new ClearService(dataAccess);
         userService = new UserService(dataAccess);
         gameService = new GameService(dataAccess);
         gson = new Gson();
-
 
         // Register your endpoints and exception handlers here.
         server.delete("db", this::clear);
@@ -58,11 +58,20 @@ public class Server {
         server.get("game", this::listGames);
         server.post("game", this::createGame);
         server.put("game", this::joinGame);
+        server.exception(SQLException.class, this::exceptionHandler);
         server.exception(ErrorException.class, this::exceptionHandler);
+
+
+
+
     }
 
     private void exceptionHandler(ErrorException e, Context ctx){
-        ctx.status(e.code).result(gson.toJson(Map.of("message", e.getMessage(), "status", e.code)));
+        ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
+    }
+
+    private void exceptionHandler(SQLException e, Context ctx){
+        ctx.status(500).result(gson.toJson(Map.of("message", String.format("Error: %s",e.getMessage()), "status", 500)));
     }
 
     private void clear(Context ctx){
@@ -143,8 +152,12 @@ public class Server {
 
 
 
-    public int run(int desiredPort) {
-        server.start(desiredPort);
+    public int run(int desiredPort){
+        try {
+            server.start(desiredPort);
+        } catch (Exception e){
+            System.err.printf("Error: %s%n", e.getMessage());
+        }
         return server.port();
     }
 

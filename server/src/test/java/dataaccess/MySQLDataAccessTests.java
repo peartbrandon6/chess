@@ -1,9 +1,10 @@
 package dataaccess;
 
 import chess.ChessGame;
-import com.google.gson.Gson;
 import exceptions.ErrorException;
+import model.AuthData;
 import model.GameData;
+import model.UserData;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -139,57 +140,215 @@ public class MySQLDataAccessTests {
 
     @Test
     void testGetUserDataPositive() throws ErrorException {
+        var da = makeDataAccess();
+        da.clearAuthData();
+        da.clearGameData();
+        da.clearUserData();
+        var data = new UserData("john","george","email@email.com");
+
+        da.putUserData(data);
+
+        var userdata = da.getUserData("john");
+        assertEquals("email@email.com", userdata.email());
+
+        da.clearAuthData();
+        da.clearGameData();
+        da.clearUserData();
     }
 
     @Test
     void testGetUserDataNegative() {
+        try (var conn = DatabaseManager.getConnection()){
+            var da = makeDataAccess();
+            var user1 = new UserData("john","george","email@email.com");
+            var user2 = new UserData("jimmy","password","emailofJimmy@email.com");
+            da.putUserData(user1);
+            da.putUserData(user2);
+
+            assertNull(da.getUserData("bob?"));
+
+            da.clearAuthData();
+            da.clearGameData();
+            da.clearUserData();
+        } catch (Exception e) {
+            fail("Something went wrong with the connection");
+        }
     }
 
     @Test
     void testPutAuthDataPositive() throws Exception {
+        var da = makeDataAccess();
+        var data = new AuthData("12345", "bob");
 
+        da.putAuthData(data);
 
+        var result = da.getAuthData("12345");
 
+        assertEquals(data, result);
+
+        da.clearAuthData();
+        da.clearGameData();
+        da.clearUserData();
     }
 
     @Test
-    void testPutAuthDataNegative() {
+    void testPutAuthDataNegative() throws ErrorException{
+        var da = makeDataAccess();
+        var data = new AuthData("12345", "jimmy");
+
+        da.putAuthData(data);
+        assertThrows(ErrorException.class, () -> da.putAuthData(data));
+
+        da.clearAuthData();
+        da.clearGameData();
+        da.clearUserData();
     }
 
     @Test
     void testPutGameDataPositive() throws ErrorException {
+        var da = makeDataAccess();
+        var data = new GameData(2,"billy","george","the game 2", new ChessGame());
+
+        da.putGameData(data);
+
+        var result = da.getGameData(2);
+
+        assertEquals(data, result);
+
+        da.clearAuthData();
+        da.clearGameData();
+        da.clearUserData();
     }
 
     @Test
-    void testPutGameDataNegative() {
+    void testPutGameDataNegative() throws ErrorException{
+        var da = makeDataAccess();
+        var data = new GameData(2,"billy","bob","the game 2", new ChessGame());
+
+        da.putGameData(data);
+        assertThrows(ErrorException.class, () -> da.putGameData(data));
+
+        da.clearAuthData();
+        da.clearGameData();
+        da.clearUserData();
     }
 
     @Test
     void testPutUserDataPositive() throws ErrorException {
+        var da = makeDataAccess();
+        var data = new UserData("john","bobby","email@email.com");
+
+        da.putUserData(data);
+
+        var result = da.getUserData("john");
+
+        assertEquals(data, result);
+
+        da.clearAuthData();
+        da.clearGameData();
+        da.clearUserData();
     }
 
     @Test
-    void testPutUserDataNegative() {
+    void testPutUserDataNegative() throws ErrorException{
+        var da = makeDataAccess();
+        var data = new UserData("john","george","email@email.com");
+
+        da.putUserData(data);
+        assertThrows(ErrorException.class, () -> da.putUserData(data));
+
+        da.clearAuthData();
+        da.clearGameData();
+        da.clearUserData();
     }
 
     @Test
     void testClearAuthDataPositive() throws ErrorException {
+        var da = makeDataAccess();
+        var data = new AuthData("The authtoken", "the username");
+
+        da.putAuthData(data);
+
+        var authdata = da.getAuthData("The authtoken");
+
+        assertNotNull(authdata);
+
+        da.clearAuthData();
+
+        assertNull(da.getAuthData("The authtoken"));
     }
 
     @Test
     void testClearGameDataPositive() throws ErrorException {
+        var da = makeDataAccess();
+        var data = new GameData(1,"john","george","the game", new ChessGame());
+
+        da.putGameData(data);
+
+        var gamedata = da.getGameData(1);
+
+        assertNotNull(gamedata);
+
+        da.clearGameData();
+
+        assertNull(da.getGameData(1));
     }
 
     @Test
     void testClearUserDataPositive() throws ErrorException {
+        var da = makeDataAccess();
+        var data = new UserData("the username", "good password", "myemail@email.com");
+
+        da.putUserData(data);
+
+        var userdata = da.getUserData("the username");
+
+        assertNotNull(userdata);
+
+        da.clearUserData();
+
+        assertNull(da.getUserData("the username"));
     }
 
     @Test
     void testDeleteAuthDataPositive() throws ErrorException {
+        var da = makeDataAccess();
+        var data = new AuthData("The authtoken", "the username");
+        var data2 = new AuthData("authtoken", "username");
+
+        da.putAuthData(data);
+        da.putAuthData(data2);
+
+        var authdata = da.getAuthData("The authtoken");
+
+        assertNotNull(authdata);
+
+        da.deleteAuthData("The authtoken");
+
+        assertNull(da.getAuthData("The authtoken"));
+        assertNotNull(da.getAuthData("authtoken"));
+
+        da.clearAuthData();
+        da.clearGameData();
+        da.clearUserData();
     }
 
     @Test
-    void testDeleteAuthDataNegative() {
+    void testDeleteAuthDataNegative() throws ErrorException{
+        var da = makeDataAccess();
+        var data = new AuthData("123", "the username");
+        var data2 = new AuthData("456", "username");
+
+        da.putAuthData(data);
+        da.putAuthData(data2);
+
+        da.deleteAuthData("123");
+
+        assertDoesNotThrow(() -> da.deleteAuthData("123"));
+
+        da.clearAuthData();
+        da.clearGameData();
+        da.clearUserData();
     }
 }
 

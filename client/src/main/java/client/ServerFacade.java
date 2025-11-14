@@ -1,6 +1,12 @@
 package client;
 
+import com.google.gson.Gson;
+
+import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.Map;
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
@@ -10,11 +16,65 @@ public class ServerFacade {
         this.serverUrl = severUrl;
     }
 
-    private void clear() {
+    private String post(String path, String jsonBody, String authToken) throws Exception{
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(serverUrl + path))
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .header("authorization", authToken)
+                .build();
+
+        HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
+            return "Action successful";
+        } else {
+            var body = httpResponse.body();
+            if (body != null) {
+                return new Gson().fromJson(body, Map.class).get("message").toString();
+            }
+            return "An unknown error occured";
+        }
+    }
+
+    private String delete(String path, String authToken) throws Exception{
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(serverUrl + path))
+                .DELETE()
+                .header("authorization", authToken)
+                .build();
+
+        HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
+            return "Action successful";
+        } else {
+            var body = httpResponse.body();
+            if (body != null) {
+                return new Gson().fromJson(body, Map.class).get("message").toString();
+            }
+            return "An unknown error occured";
+        }
+    }
+
+    private String clear() throws Exception{
+        return null;
         // clearService.clear();
     }
 
-    private void register() {
+    private void register() throws Exception{
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(serverUrl))
+                .timeout(java.time.Duration.ofMillis(5000))
+                .GET()
+                .build();
+
+        HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
+            System.out.println(httpResponse.body());
+        } else {
+            System.out.println("Error: received status code " + httpResponse.statusCode());
+        }
         // UserData data = gson.fromJson(ctx.body(), UserData.class);
         // userService.register(data);
     }

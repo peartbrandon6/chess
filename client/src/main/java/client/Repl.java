@@ -34,22 +34,86 @@ public class Repl {
 
     public String evaluateInput(String input){
         String[] args = input.toLowerCase().split(" ");
-        String cmd = cmd = args[0];
+        String cmd = args[0];
         String[] params = Arrays.copyOfRange(args, 1, args.length);
         try{
-            return switch(cmd){
-                case "register" -> register(params);
-                case "help" -> help();
-                case "quit" -> "quit";
-                default -> "Invalid input: type help to see possible commands";
-            };
+            if(state.equals(State.SIGNEDOUT)) {
+                return switch (cmd) {
+                    case "register" -> register(params);
+                    case "login" -> login(params);
+                    case "help" -> help();
+                    case "quit" -> "quit";
+                    default -> "Invalid input: type help to see possible commands";
+                };
+            }
+            else{
+                return switch (cmd) {
+                    case "logout" -> logout();
+                    case "create" -> create(params);
+                    case "list" -> list();
+                    case "join" -> join(params);
+                    case "observe" -> observe(params);
+                    case "help" -> help();
+                    case "quit" -> "quit";
+                    default -> "Invalid input: type help to see possible commands";
+                };
+            }
         } catch (ErrorException e){
             return e.getMessage();
         }
     }
 
     public String register(String[] params) throws ErrorException{
-        return "Register OK";
+        if (params.length == 3){
+            return "Register OK";
+        }
+        else{
+            return "Invalid number of arguments: type help to see possible commands";
+        }
+    }
+
+    public String login(String[] params) throws ErrorException{
+        if (params.length == 2){
+            return "Login OK";
+        }
+        else{
+            return "Invalid number of arguments: type help to see possible commands";
+        }
+    }
+
+    public String logout() throws ErrorException{
+        return "Logout OK";
+    }
+
+    public String create(String[] params) throws ErrorException{
+        if (params.length == 1){
+            return "Create OK";
+        }
+        else{
+            return "Invalid number of arguments: type help to see possible commands";
+        }
+    }
+
+    public String list() throws ErrorException{
+        return "List OK";
+    }
+
+    public String join(String[] params) throws ErrorException{
+        if (params.length == 2){
+            return "Join OK";
+        }
+        else{
+            return "Invalid number of arguments: type help to see possible commands";
+        }
+    }
+
+    public String observe(String[] params) throws ErrorException{
+        if (params.length == 1){
+            return "Observe OK";
+        }
+        else{
+            return "Invalid number of arguments: type help to see possible commands";
+        }
     }
 
     public String help(){
@@ -64,7 +128,7 @@ public class Repl {
         else {
             return """
                     create <gamename> - create a new game
-                    list- list all games
+                    list - list all games
                     join <id> <WHITE|BLACK> - join a game
                     observe <id> - observe a game
                     logout - sign out of your account

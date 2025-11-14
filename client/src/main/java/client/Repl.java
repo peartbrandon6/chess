@@ -3,6 +3,8 @@ package client;
 import java.util.Arrays;
 import java.util.Scanner;
 import exceptions.ErrorException;
+import model.LoginRequest;
+import model.UserData;
 
 public class Repl {
     private final ServerFacade server;
@@ -58,23 +60,25 @@ public class Repl {
                     default -> "Invalid input: type help to see possible commands";
                 };
             }
-        } catch (ErrorException e){
+        } catch (Exception e){
             return e.getMessage();
         }
     }
 
-    public String register(String[] params) throws ErrorException{
+    public String register(String[] params) throws Exception{
         if (params.length == 3){
-            return "Register OK";
+            UserData data = new UserData(params[0],params[1],params[2]);
+            return server.register(data);
         }
         else{
             return "Invalid number of arguments: type help to see possible commands";
         }
     }
 
-    public String login(String[] params) throws ErrorException{
+    public String login(String[] params) throws Exception{
         if (params.length == 2){
-            return "Login OK";
+            LoginRequest data = new LoginRequest(params[0],params[1]);
+            return server.login(data);
         }
         else{
             return "Invalid number of arguments: type help to see possible commands";

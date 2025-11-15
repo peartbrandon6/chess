@@ -2,7 +2,6 @@ package client;
 
 import com.google.gson.Gson;
 import model.*;
-import chess.*;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -120,10 +119,9 @@ public class ServerFacade {
     public String listGames() throws Exception{
         var response = get("/game");
         String json = response.body();
-        var games = gson.fromJson(json, ListGamesResponse.class);
-        StringBuilder listText = new StringBuilder("All Games:\n Use the id number to join a game");
-
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            var games = gson.fromJson(json, ListGamesResponse.class);
+            StringBuilder listText = new StringBuilder("All Games:\n Use the id number to join a game");
             for (int i = 0; i < games.games().length; i++){
                 listText.append(String.format("""
                                 %d.

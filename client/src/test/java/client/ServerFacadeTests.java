@@ -21,7 +21,8 @@ public class ServerFacadeTests {
     }
 
     @AfterAll
-    static void stopServer() {
+    static void stopServer() throws Exception{
+        facade.clear();
         server.stop();
     }
 
@@ -32,19 +33,43 @@ public class ServerFacadeTests {
     }
 
     @Test
+    public void registerNeg() throws Exception{
+        facade.register(new UserData("username2", "goodPassword", "brandon@email.com"));
+        var answer = facade.register(new UserData("username2", "goodPassword", "brandon@email.com"));
+        Assertions.assertEquals("Error: already taken", answer);
+    }
+
+    @Test
     public void loginPos() throws Exception{
         facade.register(new UserData("brandon", "password", "email@email.com"));
         Assertions.assertEquals("Action successful", facade.login(new LoginRequest("brandon", "password")));
     }
 
     @Test
+    public void loginNeg() throws Exception{
+        Assertions.assertEquals("Error: unauthorized, login information incorrect", facade.login(new LoginRequest("brandon", "password")));
+    }
+
+    @Test
     public void logoutPos() throws Exception{
-        facade.register(new UserData("brandon1", "password", "email@email.com"));
+        facade.register(new UserData("brandon35", "password", "email@email.com"));
         Assertions.assertEquals("Action successful", facade.logout());
     }
 
     @Test
+    public void logoutNeg() throws Exception{
+        facade.register(new UserData("brandon1", "password", "email@email.com"));
+        facade.logout();
+        Assertions.assertEquals("Error: unauthorized", facade.logout());
+    }
+
+    @Test
     public void createPos() throws Exception{
+        Assertions.assertEquals("Action successful", facade.clear());
+    }
+
+    @Test
+    public void createNeg() throws Exception{
         Assertions.assertEquals("Action successful", facade.clear());
     }
 
@@ -54,12 +79,27 @@ public class ServerFacadeTests {
     }
 
     @Test
+    public void listNeg() throws Exception{
+        Assertions.assertEquals("Action successful", facade.clear());
+    }
+
+    @Test
     public void playPos() throws Exception{
         Assertions.assertEquals("Action successful", facade.clear());
     }
 
     @Test
+    public void playNeg() throws Exception{
+        Assertions.assertEquals("Action successful", facade.clear());
+    }
+
+    @Test
     public void observePos() throws Exception{
+        Assertions.assertEquals("Action successful", facade.clear());
+    }
+
+    @Test
+    public void observeNeg() throws Exception{
         Assertions.assertEquals("Action successful", facade.clear());
     }
 

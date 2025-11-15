@@ -30,8 +30,19 @@ public class Repl {
             } catch (Exception e) {
                 var msg = e.getMessage();
                 System.out.println(msg);
+                printConsole();
             }
         }
+    }
+
+    private void printConsole(){
+        if(state.equals(State.SIGNEDOUT)){
+            System.out.println("\n[SIGNED_OUT] >>> ");
+        }
+        else{
+            System.out.println("\n[SIGNED_IN] >>> ");
+        }
+
     }
 
     public String evaluateInput(String input){

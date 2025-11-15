@@ -43,7 +43,7 @@ public class UserService extends Service{
 
         UserData dbData = dataAccess.getUserData(userData.username());
         if(dbData == null){
-            throw new ErrorException(401, "Error: unauthorized");
+            throw new ErrorException(401, "Error: unauthorized, login information incorrect");
         }
 
         if(BCrypt.checkpw(userData.password(), dbData.password())){
@@ -52,7 +52,7 @@ public class UserService extends Service{
             return authData;
         }
         else{
-            throw new ErrorException(401, "Error: unauthorized");
+            throw new ErrorException(401, "Error: unauthorized, login information incorrect");
         }
     }
 

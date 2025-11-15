@@ -3,6 +3,7 @@ package client;
 import java.util.Arrays;
 import java.util.Scanner;
 import exceptions.ErrorException;
+import model.CreateGameRequest;
 import model.LoginRequest;
 import model.UserData;
 
@@ -18,6 +19,7 @@ public class Repl {
     public void start(){
         System.out.println("Welcome to Ultimate Chess Legends Online I");
         System.out.println(help());
+        printConsole();
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -27,10 +29,11 @@ public class Repl {
             try {
                 result = evaluateInput(input);
                 System.out.println(result);
+                printConsole();
             } catch (Exception e) {
                 var msg = e.getMessage();
                 System.out.println(msg);
-                printConsole();
+
             }
         }
     }
@@ -80,7 +83,9 @@ public class Repl {
         if (params.length == 3){
             UserData data = new UserData(params[0],params[1],params[2]);
             var res = server.register(data);
-            this.state = State.SIGNEDIN;
+            if(!res.contains("Error")) {
+                this.state = State.SIGNEDIN;
+            }
             return res;
         }
         else{
@@ -92,7 +97,9 @@ public class Repl {
         if (params.length == 2){
             LoginRequest data = new LoginRequest(params[0],params[1]);
             var res = server.login(data);
-            this.state = State.SIGNEDIN;
+            if(!res.contains("Error")){
+                this.state = State.SIGNEDIN;
+            }
             return res;
         }
         else{
@@ -102,24 +109,26 @@ public class Repl {
 
     public String logout() throws Exception{
         var res = server.logout();
-        this.state = State.SIGNEDOUT;
+        if(!res.contains("Error")){
+            this.state = State.SIGNEDOUT;
+        }
         return res;
     }
 
-    public String create(String[] params) throws ErrorException{
+    public String create(String[] params) throws Exception{
         if (params.length == 1){
-            return "Create OK";
+            return server.createGame(new CreateGameRequest(params[0]));
         }
         else{
             return "Invalid number of arguments: type help to see possible commands";
         }
     }
 
-    public String list() throws ErrorException{
-        return "List OK";
+    public String list() throws Exception{
+        return server.listGames();
     }
 
-    public String join(String[] params) throws ErrorException{
+    public String join(String[] params) throws Exception{
         if (params.length == 2){
             return "Join OK";
         }
@@ -128,7 +137,7 @@ public class Repl {
         }
     }
 
-    public String observe(String[] params) throws ErrorException{
+    public String observe(String[] params) throws Exception{
         if (params.length == 1){
             return "Observe OK";
         }
@@ -143,8 +152,7 @@ public class Repl {
                     register <username> <password> <email> - create new account
                     login <username> <password> - sign in to your account
                     quit - close program
-                    help - list possible commands
-                    """;
+                    help - list possible commands""";
         }
         else {
             return """
@@ -154,8 +162,7 @@ public class Repl {
                     observe <id> - observe a game
                     logout - sign out of your account
                     quit - close program
-                    help - list possible commands
-                    """;
+                    help - list possible commands""";
         }
 
     }

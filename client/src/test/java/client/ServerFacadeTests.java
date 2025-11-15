@@ -1,5 +1,6 @@
 package client;
 
+import model.CreateGameRequest;
 import model.LoginRequest;
 import model.UserData;
 import org.junit.jupiter.api.*;
@@ -65,7 +66,8 @@ public class ServerFacadeTests {
 
     @Test
     public void createPos() throws Exception{
-        Assertions.assertEquals("Action successful", facade.clear());
+        facade.register(new UserData("brandon132", "password", "email@email.com"));
+        Assertions.assertEquals("Action successful", facade.createGame(new CreateGameRequest("Brandon's game")));
     }
 
     @Test

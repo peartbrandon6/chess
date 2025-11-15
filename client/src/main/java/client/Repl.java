@@ -8,7 +8,7 @@ import model.UserData;
 
 public class Repl {
     private final ServerFacade server;
-    private final State state;
+    private State state;
 
     public Repl(String url){
         server = new ServerFacade(url);
@@ -68,7 +68,9 @@ public class Repl {
     public String register(String[] params) throws Exception{
         if (params.length == 3){
             UserData data = new UserData(params[0],params[1],params[2]);
-            return server.register(data);
+            var res = server.register(data);
+            this.state = State.SIGNEDIN;
+            return res;
         }
         else{
             return "Invalid number of arguments: type help to see possible commands";
@@ -78,15 +80,19 @@ public class Repl {
     public String login(String[] params) throws Exception{
         if (params.length == 2){
             LoginRequest data = new LoginRequest(params[0],params[1]);
-            return server.login(data);
+            var res = server.login(data);
+            this.state = State.SIGNEDIN;
+            return res;
         }
         else{
             return "Invalid number of arguments: type help to see possible commands";
         }
     }
 
-    public String logout() throws ErrorException{
-        return "Logout OK";
+    public String logout() throws Exception{
+        var res = server.logout();
+        this.state = State.SIGNEDOUT;
+        return res;
     }
 
     public String create(String[] params) throws ErrorException{

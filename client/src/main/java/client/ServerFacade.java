@@ -13,27 +13,31 @@ public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverUrl;
     private final Gson gson;
+    private String authToken = "";
 
     ServerFacade(String severUrl){
         this.serverUrl = severUrl;
         this.gson = new Gson();
     }
 
-    private String sendRequest(HttpRequest request) throws Exception{
-        HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+    private HttpResponse<String> sendRequest(HttpRequest request) throws Exception{
+        return client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
 
-        if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
+    private String handleResponse(HttpResponse<String> response) throws Exception{
+        if (response.statusCode() >= 200 && response.statusCode() < 300) {
             return "Action successful";
         } else {
-            var body = httpResponse.body();
+            var body = response.body();
             if (body != null) {
                 return gson.fromJson(body, Map.class).get("message").toString();
             }
-            return "An unknown error occured";
+            return "An unknown error occurred";
         }
     }
 
-    private String post(String path, String jsonBody, String authToken) throws Exception{
+
+    private HttpResponse<String> post(String path, String jsonBody) throws Exception{
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(serverUrl + path))
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
@@ -43,7 +47,7 @@ public class ServerFacade {
         return sendRequest(request);
     }
 
-    private String delete(String path, String authToken) throws Exception{
+    private HttpResponse<String> delete(String path) throws Exception{
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(serverUrl + path))
                 .DELETE()
@@ -54,19 +58,33 @@ public class ServerFacade {
     }
 
     public String clear() throws Exception{
-        return delete("/db", "");
+        var response = delete("/db");
+        return handleResponse(response);
     }
 
     public String register(UserData data) throws Exception{
-        return post("/user", gson.toJson(data), "");
+        var response = post("/user", gson.toJson(data));
+        String json = response.body();
+        var map = gson.fromJson(json, Map.class);
+        if (map.containsKey("authToken")) {
+            this.authToken = map.get("authToken").toString();
+        }
+        return handleResponse(response);
     }
 
     public String login(LoginRequest data) throws Exception{
-        return post("/session", gson.toJson(data), "");
+        var response = post("/session", gson.toJson(data));
+        String json = response.body();
+        var map = gson.fromJson(json, Map.class);
+        if (map.containsKey("authToken")) {
+            this.authToken = map.get("authToken").toString();
+        }
+        return handleResponse(response);
     }
 
-    public String logout(String authToken) throws Exception{
-        return delete("/db", authToken);
+    public String logout() throws Exception{
+        var response = delete("/session");
+        return handleResponse(response);
     }
 
     public void listGames() {

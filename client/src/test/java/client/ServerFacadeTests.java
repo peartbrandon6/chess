@@ -22,6 +22,12 @@ public class ServerFacadeTests {
         System.out.println("Started test HTTP server on " + port);
     }
 
+
+    @AfterEach
+    void clearFacade() throws Exception{
+        facade.clear();
+    }
+
     @AfterAll
     static void stopServer() throws Exception{
         facade.clear();
@@ -73,8 +79,8 @@ public class ServerFacadeTests {
 
     @Test
     public void createNeg() throws Exception{
-        facade.createGame(new CreateGameRequest("DoubleGame"));
-        Assertions.assertTrue(facade.createGame(new CreateGameRequest("DoubleGame")).contains("Error"));
+        var res = facade.createGame(new CreateGameRequest("unregisteredGame")).contains("Error");
+        Assertions.assertTrue(res);
     }
 
     @Test
@@ -104,17 +110,25 @@ public class ServerFacadeTests {
         facade.register(new UserData("brandon014", "password", "email@email.com"));
         facade.createGame(new CreateGameRequest("yay"));
         facade.listGames();
-        Assertions.assertEquals("Invalid game ID", facade.joinGame(new JoinGameRequest("WHITE", 4)));
+        Assertions.assertEquals("Error: Invalid game ID", facade.joinGame(new JoinGameRequest("WHITE", 4)));
     }
 
     @Test
     public void observePos() throws Exception{
-        Assertions.assertEquals("Action successful", facade.clear());
+        var test_facade = new ServerFacade("http://localhost:8080");
+        test_facade.register(new UserData("brandon011246", "password", "email@email.com"));
+        test_facade.createGame(new CreateGameRequest("okidoki"));
+        test_facade.listGames();
+        Assertions.assertEquals("Currently observing game #1", test_facade.observeGame(1));
     }
 
     @Test
     public void observeNeg() throws Exception{
-        Assertions.assertEquals("Action successful", facade.clear());
+        var test_facade = new ServerFacade("http://localhost:8080");
+        test_facade.register(new UserData("brandon01134", "password", "email@email.com"));
+        test_facade.createGame(new CreateGameRequest("cheese"));
+        test_facade.listGames();
+        Assertions.assertEquals("Invalid game ID", test_facade.observeGame(6));
     }
 
 }

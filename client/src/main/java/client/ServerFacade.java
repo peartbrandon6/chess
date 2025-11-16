@@ -164,7 +164,7 @@ public class ServerFacade {
         try{
             adjustedData = new JoinGameRequest(data.playerColor(), currentGames[data.gameID()-1].gameID());
         } catch (Exception e) {
-            return "Invalid game ID";
+            return "Error: Invalid game ID";
         }
 
         var response = put("/game", gson.toJson(adjustedData));

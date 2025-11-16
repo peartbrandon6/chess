@@ -34,7 +34,6 @@ public class GameService extends Service {
         if (!authenticate(authToken)) {
             throw new ErrorException(401, "Error: unauthorized");
         }
-
         int id = createGameID();
         GameData game = new GameData(id, null, null, createGameRequest.gameName(), new ChessGame());
         dataAccess.putGameData(game);

@@ -93,8 +93,8 @@ public class ServerFacadeTests {
 
     @Test
     public void listNeg() throws Exception{
-        var test_facade = new ServerFacade("http://localhost:8080");
-        Assertions.assertTrue(test_facade.listGames().contains("Error"));
+        
+        Assertions.assertTrue(facade.listGames().contains("Error"));
     }
 
     @Test
@@ -115,20 +115,20 @@ public class ServerFacadeTests {
 
     @Test
     public void observePos() throws Exception{
-        var test_facade = new ServerFacade("http://localhost:8080");
-        test_facade.register(new UserData("brandon011246", "password", "email@email.com"));
-        test_facade.createGame(new CreateGameRequest("okidoki"));
-        test_facade.listGames();
-        Assertions.assertEquals("Currently observing game #1", test_facade.observeGame(1));
+        
+        facade.register(new UserData("brandon011246", "password", "email@email.com"));
+        facade.createGame(new CreateGameRequest("okidoki"));
+        facade.listGames();
+        Assertions.assertEquals("Currently observing game #1", facade.observeGame(1));
     }
 
     @Test
     public void observeNeg() throws Exception{
-        var test_facade = new ServerFacade("http://localhost:8080");
-        test_facade.register(new UserData("brandon01134", "password", "email@email.com"));
-        test_facade.createGame(new CreateGameRequest("cheese"));
-        test_facade.listGames();
-        Assertions.assertEquals("Invalid game ID", test_facade.observeGame(6));
+        
+        facade.register(new UserData("brandon01134", "password", "email@email.com"));
+        facade.createGame(new CreateGameRequest("cheese"));
+        facade.listGames();
+        Assertions.assertEquals("Invalid game ID", facade.observeGame(6));
     }
 
 }

@@ -146,7 +146,13 @@ public class Repl {
 
     public String observe(String[] params) throws Exception{
         if (params.length == 1){
-            return "Observe OK";
+            int id;
+            try{
+                id = Integer.parseInt(params[0]);
+            } catch (Exception e){
+                return "Invalid game ID";
+            }
+            return server.observeGame(id);
         }
         else{
             return "Invalid number of arguments: type help to see possible commands";

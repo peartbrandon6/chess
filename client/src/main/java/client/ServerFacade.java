@@ -193,4 +193,20 @@ public class ServerFacade {
         }
     }
 
+    public String observeGame(int id){
+        try{
+            currentGames[id-1].gameID();
+        } catch (Exception e) {
+            return "Invalid game ID";
+        }
+
+        ChessGame game = new ChessGame();
+        game.setBoard(new ChessBoard());
+        ChessBoard board = game.getBoard();
+        board.resetBoard();
+
+        DrawBoard.drawBoard(ChessGame.TeamColor.WHITE, board);
+        return String.format("Currently observing game #%d", id);
+    }
+
 }

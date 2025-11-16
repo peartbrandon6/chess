@@ -2,7 +2,6 @@ package client;
 
 import java.util.Arrays;
 import java.util.Scanner;
-import exceptions.ErrorException;
 import model.CreateGameRequest;
 import model.JoinGameRequest;
 import model.LoginRequest;

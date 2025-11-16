@@ -101,7 +101,10 @@ public class ServerFacadeTests {
 
     @Test
     public void joinNeg() throws Exception{
-        Assertions.assertEquals("Action successful", facade.clear());
+        facade.register(new UserData("brandon014", "password", "email@email.com"));
+        facade.createGame(new CreateGameRequest("yay"));
+        facade.listGames();
+        Assertions.assertEquals("Invalid game ID", facade.joinGame(new JoinGameRequest("WHITE", 4)));
     }
 
     @Test

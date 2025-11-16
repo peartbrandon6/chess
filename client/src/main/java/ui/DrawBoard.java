@@ -139,12 +139,15 @@ public class DrawBoard {
                     String pieceString = EMPTY;
 
                     if(piece != null && piece.getTeamColor() == ChessGame.TeamColor.WHITE){
-                        pieceString = getString(out, piece, SET_TEXT_COLOR_BLUE, WHITE_KING, WHITE_QUEEN, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK, WHITE_PAWN);
+                        pieceString = getString(out, piece, SET_TEXT_COLOR_BLUE, WHITE_KING,
+                                WHITE_QUEEN, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK, WHITE_PAWN);
                     }
 
                     if(piece != null && piece.getTeamColor() == ChessGame.TeamColor.BLACK){
-                        pieceString = getString(out, piece, EscapeSequences.SET_TEXT_COLOR_RED, EscapeSequences.BLACK_KING, EscapeSequences.BLACK_QUEEN,
-                                EscapeSequences.BLACK_BISHOP, EscapeSequences.BLACK_KNIGHT, EscapeSequences.BLACK_ROOK, EscapeSequences.BLACK_PAWN);
+                        pieceString = getString(out, piece, EscapeSequences.SET_TEXT_COLOR_RED,
+                                EscapeSequences.BLACK_KING, EscapeSequences.BLACK_QUEEN,
+                                EscapeSequences.BLACK_BISHOP, EscapeSequences.BLACK_KNIGHT,
+                                EscapeSequences.BLACK_ROOK, EscapeSequences.BLACK_PAWN);
                     }
 
 

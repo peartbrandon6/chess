@@ -160,7 +160,13 @@ public class ServerFacade {
     }
 
     public String joinGame(JoinGameRequest data) throws Exception{
-        JoinGameRequest adjustedData = new JoinGameRequest(data.playerColor(), currentGames[data.gameID()-1].gameID());
+        JoinGameRequest adjustedData;
+        try{
+            adjustedData = new JoinGameRequest(data.playerColor(), currentGames[data.gameID()-1].gameID());
+        } catch (Exception e) {
+            throw new Exception("Invalid game ID");
+        }
+
         var response = put("/game", gson.toJson(adjustedData));
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             ChessGame game = new ChessGame();

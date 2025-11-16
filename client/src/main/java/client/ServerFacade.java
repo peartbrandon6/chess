@@ -1,6 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import model.*;
 
 import java.net.URI;
@@ -21,7 +22,9 @@ public class ServerFacade {
 
     ServerFacade(String severUrl){
         this.serverUrl = severUrl;
-        this.gson = new Gson();
+        this.gson = new GsonBuilder()
+                .enableComplexMapKeySerialization()
+                .create();
     }
 
     private HttpResponse<String> sendRequest(HttpRequest request) throws Exception{

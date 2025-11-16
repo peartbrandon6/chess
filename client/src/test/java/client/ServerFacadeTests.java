@@ -72,17 +72,22 @@ public class ServerFacadeTests {
 
     @Test
     public void createNeg() throws Exception{
-        Assertions.assertEquals("Action successful", facade.clear());
+        facade.createGame(new CreateGameRequest("DoubleGame"));
+        Assertions.assertTrue(facade.createGame(new CreateGameRequest("DoubleGame")).contains("Error"));
     }
 
     @Test
     public void listPos() throws Exception{
-        Assertions.assertEquals("Action successful", facade.clear());
+        facade.clear();
+        facade.register(new UserData("brandon66", "password", "email@email.com"));
+        facade.createGame(new CreateGameRequest("theGame"));
+        Assertions.assertDoesNotThrow(() -> facade.listGames());
     }
 
     @Test
     public void listNeg() throws Exception{
-        Assertions.assertEquals("Action successful", facade.clear());
+        var test_facade = new ServerFacade("http://localhost:8080");
+        Assertions.assertTrue(test_facade.listGames().contains("Error"));
     }
 
     @Test

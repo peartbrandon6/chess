@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
@@ -48,7 +49,9 @@ public class Server {
         clearService = new ClearService(dataAccess);
         userService = new UserService(dataAccess);
         gameService = new GameService(dataAccess);
-        gson = new Gson();
+        gson = new GsonBuilder()
+                .enableComplexMapKeySerialization()
+                .create();
 
         // Register your endpoints and exception handlers here.
         server.delete("db", this::clear);

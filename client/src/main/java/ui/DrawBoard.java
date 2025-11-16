@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
 import chess.ChessPosition;
 
 import java.io.PrintStream;
@@ -138,27 +139,12 @@ public class DrawBoard {
                     String pieceString = EMPTY;
 
                     if(piece != null && piece.getTeamColor() == ChessGame.TeamColor.WHITE){
-                        out.print(SET_TEXT_COLOR_BLUE);
-                        pieceString = switch (piece.getPieceType()) {
-                            case KING -> WHITE_KING;
-                            case QUEEN -> WHITE_QUEEN;
-                            case BISHOP -> WHITE_BISHOP;
-                            case KNIGHT -> WHITE_KNIGHT;
-                            case ROOK -> WHITE_ROOK;
-                            case PAWN -> WHITE_PAWN;
-                        };
+                        pieceString = getString(out, piece, SET_TEXT_COLOR_BLUE, WHITE_KING, WHITE_QUEEN, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK, WHITE_PAWN);
                     }
 
                     if(piece != null && piece.getTeamColor() == ChessGame.TeamColor.BLACK){
-                        out.print(SET_TEXT_COLOR_RED);
-                        pieceString = switch (piece.getPieceType()) {
-                            case KING -> BLACK_KING;
-                            case QUEEN -> BLACK_QUEEN;
-                            case BISHOP -> BLACK_BISHOP;
-                            case KNIGHT -> BLACK_KNIGHT;
-                            case ROOK -> BLACK_ROOK;
-                            case PAWN -> BLACK_PAWN;
-                        };
+                        pieceString = getString(out, piece, EscapeSequences.SET_TEXT_COLOR_RED, EscapeSequences.BLACK_KING, EscapeSequences.BLACK_QUEEN,
+                                EscapeSequences.BLACK_BISHOP, EscapeSequences.BLACK_KNIGHT, EscapeSequences.BLACK_ROOK, EscapeSequences.BLACK_PAWN);
                     }
 
 
@@ -187,6 +173,21 @@ public class DrawBoard {
             out.println();
         }
 
+    }
+
+    private static String getString(PrintStream out, ChessPiece piece, String setTextColorBlue, String whiteKing, String whiteQueen,
+                                    String whiteBishop, String whiteKnight, String whiteRook, String whitePawn) {
+        String pieceString;
+        out.print(setTextColorBlue);
+        pieceString = switch (piece.getPieceType()) {
+            case KING -> whiteKing;
+            case QUEEN -> whiteQueen;
+            case BISHOP -> whiteBishop;
+            case KNIGHT -> whiteKnight;
+            case ROOK -> whiteRook;
+            case PAWN -> whitePawn;
+        };
+        return pieceString;
     }
 
     private static void setWhite(PrintStream out) {

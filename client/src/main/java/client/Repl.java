@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Scanner;
 import exceptions.ErrorException;
 import model.CreateGameRequest;
+import model.JoinGameRequest;
 import model.LoginRequest;
 import model.UserData;
 
@@ -130,7 +131,13 @@ public class Repl {
 
     public String join(String[] params) throws Exception{
         if (params.length == 2){
-            return "Join OK";
+            int id;
+            try{
+                id = Integer.parseInt(params[0]);
+            } catch (Exception e){
+                return "Invalid game ID";
+            }
+            return server.joinGame(new JoinGameRequest(params[1].toUpperCase(), id));
         }
         else{
             return "Invalid number of arguments: type help to see possible commands";

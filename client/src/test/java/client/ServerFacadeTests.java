@@ -1,6 +1,7 @@
 package client;
 
 import model.CreateGameRequest;
+import model.JoinGameRequest;
 import model.LoginRequest;
 import model.UserData;
 import org.junit.jupiter.api.*;
@@ -91,12 +92,15 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void playPos() throws Exception{
-        Assertions.assertEquals("Action successful", facade.clear());
+    public void joinPos() throws Exception{
+        facade.register(new UserData("brandon011", "password", "email@email.com"));
+        facade.createGame(new CreateGameRequest("join me"));
+        facade.listGames();
+        Assertions.assertEquals("", facade.joinGame(new JoinGameRequest("WHITE", 1)));
     }
 
     @Test
-    public void playNeg() throws Exception{
+    public void joinNeg() throws Exception{
         Assertions.assertEquals("Action successful", facade.clear());
     }
 

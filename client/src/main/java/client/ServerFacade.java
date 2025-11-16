@@ -1,8 +1,13 @@
 package client;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import model.*;
+import ui.DrawBoard;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -124,15 +129,25 @@ public class ServerFacade {
         String json = response.body();
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             var games = gson.fromJson(json, ListGamesResponse.class);
-            StringBuilder listText = new StringBuilder("All Games:\n Use the id number to join a game");
+            this.currentGames = games.games();
+            StringBuilder listText = new StringBuilder("All Games:\nUse the id number to join a game");
+
             for (int i = 0; i < games.games().length; i++){
+                String white = "";
+                String black = "";
+                if(games.games()[i].whiteUsername() != null){
+                    white = games.games()[i].whiteUsername();
+                }
+                if(games.games()[i].blackUsername() != null){
+                    black = games.games()[i].blackUsername();
+                }
                 listText.append(String.format("""
-                                %d.
+                                \nid - %d
                                 Game name - %s
                                 White player - %s
                                 Black player - %s
                                 """,
-                        i + 1, games.games()[i].gameName(), games.games()[i].whiteUsername(), games.games()[i].blackUsername()));
+                        i + 1, games.games()[i].gameName(), white, black));
             }
             return listText.toString();
         } else {
@@ -144,11 +159,32 @@ public class ServerFacade {
         }
     }
 
+    public String joinGame(JoinGameRequest data) throws Exception{
+        JoinGameRequest adjustedData = new JoinGameRequest(data.playerColor(), currentGames[data.gameID()-1].gameID());
+        var response = put("/game", gson.toJson(adjustedData));
+        if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            ChessGame game = new ChessGame();
+            game.setBoard(new ChessBoard());
+            ChessBoard board = game.getBoard();
+            board.resetBoard();
 
+            ChessGame.TeamColor color;
+            if(data.playerColor().equals("WHITE")){
+                color = ChessGame.TeamColor.WHITE;
+            }
+            else{
+                color = ChessGame.TeamColor.BLACK;
+            }
 
-    public void joinGame() {
-        // String auth = gson.fromJson(ctx.header("authorization"), String.class);
-        // JoinGameRequest req = gson.fromJson(ctx.body(), JoinGameRequest.class);
-        // gameService.joinGame(auth, req);
+            DrawBoard.drawBoard(color, board);
+            return "";
+        } else {
+            var body = response.body();
+            if (body != null) {
+                return gson.fromJson(body, Map.class).get("message").toString();
+            }
+            return "An unknown error occurred";
+        }
     }
+
 }

@@ -40,9 +40,9 @@ public class ServerFacade {
         } else {
             var body = response.body();
             if (body != null) {
-                return gson.fromJson(body, Map.class).get("message").toString();
+                return "Error: unable to complete action";
             }
-            return "An unknown error occurred";
+            return "Error: An unknown error occurred";
         }
     }
 
@@ -151,7 +151,7 @@ public class ServerFacade {
         } else {
             var body = response.body();
             if (body != null) {
-                return gson.fromJson(body, Map.class).get("message").toString();
+                return "Error: unable to list games";
             }
             return "An unknown error occurred";
         }
@@ -185,7 +185,7 @@ public class ServerFacade {
         } else {
             var body = response.body();
             if (body != null) {
-                return gson.fromJson(body, Map.class).get("message").toString();
+                return "Error: unable to join game on that team";
             }
             return "An unknown error occurred";
         }
@@ -195,7 +195,7 @@ public class ServerFacade {
         try{
             currentGames[id-1].gameID();
         } catch (Exception e) {
-            return "Invalid game ID";
+            return "Error: Invalid game ID";
         }
 
         ChessGame game = new ChessGame();

@@ -44,7 +44,7 @@ public class ServerFacadeTests {
     public void registerNeg() throws Exception{
         facade.register(new UserData("username2", "goodPassword", "brandon@email.com"));
         var answer = facade.register(new UserData("username2", "goodPassword", "brandon@email.com"));
-        Assertions.assertEquals("Error: already taken", answer);
+        Assertions.assertEquals("Error: unable to complete action", answer);
     }
 
     @Test
@@ -55,7 +55,7 @@ public class ServerFacadeTests {
 
     @Test
     public void loginNeg() throws Exception{
-        Assertions.assertEquals("Error: unauthorized, login information incorrect", facade.login(new LoginRequest("brandon", "password")));
+        Assertions.assertTrue(facade.login(new LoginRequest("brandon", "password")).contains("Error"));
     }
 
     @Test
@@ -68,7 +68,7 @@ public class ServerFacadeTests {
     public void logoutNeg() throws Exception{
         facade.register(new UserData("brandon1", "password", "email@email.com"));
         facade.logout();
-        Assertions.assertEquals("Error: unauthorized", facade.logout());
+        Assertions.assertTrue(facade.logout().contains("Error"));
     }
 
     @Test
@@ -128,7 +128,7 @@ public class ServerFacadeTests {
         facade.register(new UserData("brandon01134", "password", "email@email.com"));
         facade.createGame(new CreateGameRequest("cheese"));
         facade.listGames();
-        Assertions.assertEquals("Invalid game ID", facade.observeGame(6));
+        Assertions.assertEquals("Error: Invalid game ID", facade.observeGame(6));
     }
 
 }

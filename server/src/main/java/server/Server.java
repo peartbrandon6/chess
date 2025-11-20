@@ -4,12 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import dataaccess.DataAccess;
-import dataaccess.MemoryDataAccess;
 import dataaccess.MySQLDataAccess;
 import exceptions.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 
+import io.javalin.websocket.WsConnectContext;
+import io.javalin.websocket.WsContext;
 import model.*;
 import service.ClearService;
 import service.GameService;
@@ -17,6 +18,8 @@ import service.UserService;
 
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 
 record ErrorResponse(String message){
@@ -63,9 +66,27 @@ public class Server {
         server.put("game", this::joinGame);
         server.exception(SQLException.class, this::exceptionHandler);
         server.exception(ErrorException.class, this::exceptionHandler);
+        server.ws("/ws", ws -> {
+            ws.onConnect(ctx -> {
+                ctx.enableAutomaticPings();
+                sendNotification(ctx);
+                System.out.println("listening on port 8080");
+            });
+        });
 
 
 
+
+    }
+
+    // Fully implement this, this is just an example
+    private void sendNotification(WsContext ctx){
+        try{
+            if (ctx.session.isOpen()) {
+                ctx.send("Server: here's the message");
+            }
+        } catch (Exception ignore){
+        }
 
     }
 

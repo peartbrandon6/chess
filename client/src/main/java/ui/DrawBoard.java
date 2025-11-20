@@ -90,29 +90,19 @@ public class DrawBoard {
     }
 
     private static void setColor(PrintStream out, int row, int col, ChessGame.TeamColor color){
-        if(color.equals(ChessGame.TeamColor.WHITE)){
-            if((col + row) % 2 == 0){
-                setWhite(out);
-            }
-            else{
-                setGrey(out);
-            }
+        if((col + row) % 2 == 0){
+            setWhite(out);
         }
         else{
-            if((col + row) % 2 == 0){
-                setGrey(out);
-            }
-            else{
-                setWhite(out);
-            }
+            setGrey(out);
         }
 
     }
 
     private static void drawRowOfSquares(PrintStream out, ChessBoard board, int row, ChessGame.TeamColor color) {
 
-        String[] whiteheader = { " 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 " };
-        String[] blackheader = { " 8 ", " 7 ", " 6 ", " 5 ", " 4 ", " 3 ", " 2 ", " 1 " };
+        String[] blackheader = { " 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 " };
+        String[] whiteheader = { " 8 ", " 7 ", " 6 ", " 5 ", " 4 ", " 3 ", " 2 ", " 1 " };
         String[] headers;
         if(color.equals(ChessGame.TeamColor.WHITE)){
             headers = whiteheader;
@@ -129,7 +119,14 @@ public class DrawBoard {
                     int prefixLength = SQUARE_SIZE_IN_PADDED_CHARS / 2;
                     int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
 
-                    var piece = board.getPiece(new ChessPosition(row+1, boardCol+1));
+                    ChessPiece piece;
+                    if(color.equals(ChessGame.TeamColor.WHITE)){
+                        piece = board.getPiece(new ChessPosition(row+1, boardCol+1));
+                    }
+                    else{
+                        piece = board.getPiece(new ChessPosition(8-row, 8-boardCol));
+                    }
+
 
                     if (boardCol == 0){
                         setBlack(out);

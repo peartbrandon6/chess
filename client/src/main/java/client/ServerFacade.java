@@ -8,6 +8,7 @@ import model.*;
 import ui.DrawBoard;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -46,6 +47,9 @@ public class ServerFacade {
         }
     }
 
+    private void webSocketExample() throws Exception {
+        URI uri = new URI("ws://localhost:8080/ws");
+    }
 
     private HttpResponse<String> post(String path, String jsonBody) throws Exception{
         HttpRequest request = HttpRequest.newBuilder()

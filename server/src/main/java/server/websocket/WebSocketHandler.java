@@ -41,9 +41,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void connect(UserGameCommand command, Session session) throws IOException {
-        connections.add(session);
+        connections.add(command.getGameID(), session);
+        var message = "someone joined the game";    // change this to the username
         var notification = new NotificationMessage(message);
-        connections.broadcast(session, notification);
+        connections.broadcast(command.getGameID(), session, notification);
     }
 
     private void make_move(UserGameCommand command, Session session) throws IOException {

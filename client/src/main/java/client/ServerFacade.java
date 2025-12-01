@@ -4,6 +4,9 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import jakarta.websocket.ContainerProvider;
+import jakarta.websocket.Session;
+import jakarta.websocket.WebSocketContainer;
 import model.*;
 import ui.DrawBoard;
 
@@ -23,6 +26,7 @@ public class ServerFacade {
     private final Gson gson;
     private String authToken = "";
     private GameData[] currentGames = new GameData[0];
+    private Session session;
 
     ServerFacade(String severUrl){
         this.serverUrl = severUrl;
@@ -47,8 +51,10 @@ public class ServerFacade {
         }
     }
 
-    private void webSocketExample() throws Exception {
+    private void openWebSocket() throws Exception {
         URI uri = new URI("ws://localhost:8080/ws");
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        session = container.connectToServer(this, uri);
     }
 
     private HttpResponse<String> post(String path, String jsonBody) throws Exception{

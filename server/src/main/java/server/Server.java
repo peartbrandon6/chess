@@ -12,6 +12,7 @@ import io.javalin.http.Context;
 import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsContext;
 import model.*;
+import server.websocket.WebSocketHandler;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -43,6 +44,8 @@ public class Server {
     public Server() {
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
+        WebSocketHandler webSocketHandler = new WebSocketHandler();
+
         try {
             dataAccess = new MySQLDataAccess();
         } catch (ErrorException e){
@@ -67,11 +70,9 @@ public class Server {
         server.exception(SQLException.class, this::exceptionHandler);
         server.exception(ErrorException.class, this::exceptionHandler);
         server.ws("/ws", ws -> {
-            ws.onConnect(ctx -> {
-                ctx.enableAutomaticPings();
-                sendNotification(ctx);
-                System.out.println("listening on port 8080");
-            });
+            ws.onConnect(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+            ws.onClose(webSocketHandler);
         });
 
 

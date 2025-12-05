@@ -1,6 +1,7 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
 
@@ -11,7 +12,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class ConnectionManager {
     public final ConcurrentHashMap<Integer, CopyOnWriteArraySet<Session>> connections = new ConcurrentHashMap<>();
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .enableComplexMapKeySerialization()
+            .create();
 
     public void add(Integer gameID, Session session) {
         connections.computeIfAbsent(gameID, k -> new CopyOnWriteArraySet<>()).add(session);

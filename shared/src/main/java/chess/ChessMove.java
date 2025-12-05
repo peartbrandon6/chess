@@ -35,6 +35,14 @@ public class ChessMove {
         return Objects.hash(startPosition, endPosition, promotionPiece);
     }
 
+
+    String[] rows = {"a","b","c","d","e","f","g","h"};
+
+    @Override
+    public String toString() {
+        return rows[startPosition.getRow()] + startPosition.getColumn() + " to " + rows[endPosition.getRow()] + endPosition.getColumn();
+    }
+
     /**
      * @return ChessPosition of starting location
      */

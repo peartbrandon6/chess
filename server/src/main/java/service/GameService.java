@@ -1,6 +1,8 @@
 package service;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import dataaccess.DataAccess;
 import exceptions.ErrorException;
 import model.GameData;
@@ -69,5 +71,16 @@ public class GameService extends Service {
 
     public ChessGame loadGame(int gameID) throws ErrorException{
         return dataAccess.getGameData(gameID).game();
+    }
+
+    public ChessGame makeMove(int gameID, ChessMove move) throws ErrorException {
+        var game = dataAccess.getGameData(gameID);
+        try {
+            game.game().makeMove(move);
+        } catch (InvalidMoveException e) {
+            throw new RuntimeException(e);
+        }
+        dataAccess.updateGameData(game);
+        return game.game();
     }
 }

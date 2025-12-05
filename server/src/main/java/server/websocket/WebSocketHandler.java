@@ -1,12 +1,15 @@
 package server.websocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import exceptions.ErrorException;
 import io.javalin.websocket.*;
 import org.eclipse.jetty.websocket.api.Session;
 import service.GameService;
 import service.UserService;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -20,7 +23,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private final ConnectionManager connections = new ConnectionManager();
     private final UserService userService;
     private final GameService gameService;
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .enableComplexMapKeySerialization()
+            .create();
 
     public WebSocketHandler(UserService userService, GameService gameService) {
         this.userService = userService;
@@ -40,7 +45,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
                 case CONNECT -> connect(command, ctx.session);
-                case MAKE_MOVE -> make_move(command, ctx.session);
+                case MAKE_MOVE -> makeMove(gson.fromJson(ctx.message(), MakeMoveCommand.class), ctx.session);
                 case LEAVE -> leave(command, ctx.session);
                 case RESIGN -> resign(command, ctx.session);
             }
@@ -60,15 +65,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void connect(UserGameCommand command, Session session) throws IOException {
-        boolean auth;
-        try {
-            auth = userService.authenticate(command.getAuthToken());
-        } catch (ErrorException e) {
-            sendMessage(new ErrorMessage("Error: unable to authenticate user"), session);
-            return;
-        }
-        if (!auth) {
-            sendMessage(new ErrorMessage("Error: not signed in"), session);
+        if (invalidUserCheck(command, session)){
             return;
         }
         connections.add(command.getGameID(), session);
@@ -103,8 +100,63 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
 
 
-    private void make_move(UserGameCommand command, Session session) throws IOException {
+    private void makeMove(MakeMoveCommand command, Session session) throws IOException {
+        if (invalidUserCheck(command, session)){
+            return;
+        }
 
+        ChessGame game;
+        try {
+            game = gameService.loadGame(command.getGameID());
+            if (game == null){
+                sendMessage(new ErrorMessage("Error: game does not exist"), session);
+                return;
+            }
+        } catch (Exception e) {
+            sendMessage(new ErrorMessage("Error: unable to authenticate game"), session);
+            return;
+        }
+
+        ChessMove move = command.getMove();
+        if (!game.validMoves(move.getStartPosition()).contains(move)){
+            sendMessage(new ErrorMessage("Error: invalid move"), session);
+            return;
+        }
+
+        ChessGame newgame;
+        try {
+            newgame = gameService.makeMove(command.getGameID(), move);
+        } catch (ErrorException e) {
+            sendMessage(new ErrorMessage("Error: unable to update game"), session);
+            return;
+        }
+
+        connections.broadcast(command.getGameID(), null, new LoadGameMessage(newgame));
+
+        String username;
+        try {
+            username = userService.getUsername(command.getAuthToken());
+        } catch (ErrorException e) {
+            sendMessage(new ErrorMessage("Error: unable to authenticate user"), session);
+            return;
+        }
+
+        connections.broadcast(command.getGameID(), session, new NotificationMessage(String.format("%s: %s", username, move)));
+    }
+
+    private boolean invalidUserCheck(UserGameCommand command, Session session) throws IOException {
+        boolean auth;
+        try {
+            auth = userService.authenticate(command.getAuthToken());
+        } catch (ErrorException e) {
+            sendMessage(new ErrorMessage("Error: unable to authenticate user"), session);
+            return true;
+        }
+        if (!auth) {
+            sendMessage(new ErrorMessage("Error: not signed in"), session);
+            return true;
+        }
+        return false;
     }
 
     private void leave(UserGameCommand command, Session session) throws IOException {

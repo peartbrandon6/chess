@@ -73,14 +73,32 @@ public class GameService extends Service {
         return dataAccess.getGameData(gameID).game();
     }
 
-    public ChessGame makeMove(int gameID, ChessMove move) throws ErrorException {
-        var game = dataAccess.getGameData(gameID);
-        try {
-            game.game().makeMove(move);
-        } catch (InvalidMoveException e) {
-            throw new RuntimeException(e);
+    public ChessGame makeMove(int gameID, String username, ChessMove move) throws ErrorException {
+        GameData gameData = dataAccess.getGameData(gameID);
+        var teamTurn = gameData.game().getTeamTurn();
+        var piece = gameData.game().getBoard().getPiece(move.getStartPosition());
+
+        if ((gameData.whiteUsername().equals(username) && teamTurn == ChessGame.TeamColor.WHITE || gameData.blackUsername().equals(username) && teamTurn == ChessGame.TeamColor.BLACK) && piece != null && teamTurn == piece.getTeamColor()){
+            try {
+                gameData.game().makeMove(move);
+                if(teamTurn == ChessGame.TeamColor.WHITE){
+                    gameData.game().setTeamTurn(ChessGame.TeamColor.BLACK);
+                }
+                else{
+                    gameData.game().setTeamTurn(ChessGame.TeamColor.WHITE);
+                }
+            } catch (InvalidMoveException e) {
+                throw new ErrorException(400, "Error: bad request");
+            }
+            System.out.println(gameData.game().getTeamTurn());
+            dataAccess.updateGameData(new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(),gameData.gameName(),gameData.game()));
+            ChessGame newgame;
+            newgame = dataAccess.getGameData(gameData.gameID()).game();
+            System.out.println(newgame.getTeamTurn());
+            return gameData.game();
         }
-        dataAccess.updateGameData(game);
-        return game.game();
+        else {
+            throw new ErrorException(400, "Error: bad request");
+        }
     }
 }

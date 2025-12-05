@@ -123,16 +123,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return;
         }
 
-        ChessGame newgame;
-        try {
-            newgame = gameService.makeMove(command.getGameID(), move);
-        } catch (ErrorException e) {
-            sendMessage(new ErrorMessage("Error: unable to update game"), session);
-            return;
-        }
-
-        connections.broadcast(command.getGameID(), null, new LoadGameMessage(newgame));
-
         String username;
         try {
             username = userService.getUsername(command.getAuthToken());
@@ -141,7 +131,31 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return;
         }
 
+        ChessGame newgame;
+        try {
+            newgame = gameService.makeMove(command.getGameID(), username, move);
+        } catch (ErrorException e) {
+            sendMessage(new ErrorMessage("Error: unable to make that move"), session);
+            return;
+        }
+
+        connections.broadcast(command.getGameID(), null, new LoadGameMessage(newgame));
+
         connections.broadcast(command.getGameID(), session, new NotificationMessage(String.format("%s: %s", username, move)));
+
+        checkEndGame(newgame, command.getGameID());
+    }
+
+    private void checkEndGame(ChessGame game, int gameID) throws IOException{
+            if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)){
+                connections.broadcast(gameID, null, new NotificationMessage("Checkmate"));
+            }
+            else if (game.isInCheck(ChessGame.TeamColor.WHITE) || game.isInCheck(ChessGame.TeamColor.BLACK)){
+                connections.broadcast(gameID, null, new NotificationMessage("Check"));
+            }
+            else if (game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInStalemate(ChessGame.TeamColor.BLACK)) {
+                connections.broadcast(gameID, null, new NotificationMessage("Stalemate"));
+            }
     }
 
     private boolean invalidUserCheck(UserGameCommand command, Session session) throws IOException {

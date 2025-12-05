@@ -36,11 +36,11 @@ public class ChessMove {
     }
 
 
-    String[] rows = {"a","b","c","d","e","f","g","h"};
+    String[] columns = {"a","b","c","d","e","f","g","h"};
 
     @Override
     public String toString() {
-        return rows[startPosition.getRow()] + startPosition.getColumn() + " to " + rows[endPosition.getRow()] + endPosition.getColumn();
+        return columns[startPosition.getColumn() - 1] + startPosition.getRow() + " to " + columns[endPosition.getColumn() - 1] + endPosition.getRow();
     }
 
     /**

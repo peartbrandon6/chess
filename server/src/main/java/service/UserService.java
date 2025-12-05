@@ -67,4 +67,8 @@ public class UserService extends Service{
         else { throw new ErrorException(401, "Error: unauthorized"); }
     }
 
+    public String getUsername(String authToken) throws ErrorException {
+        return dataAccess.getAuthData(authToken).username();
+    }
+
 }

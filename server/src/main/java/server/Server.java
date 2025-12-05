@@ -44,7 +44,7 @@ public class Server {
     public Server() {
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
-        WebSocketHandler webSocketHandler = new WebSocketHandler();
+
 
         try {
             dataAccess = new MySQLDataAccess();
@@ -58,6 +58,8 @@ public class Server {
         gson = new GsonBuilder()
                 .enableComplexMapKeySerialization()
                 .create();
+
+        WebSocketHandler webSocketHandler = new WebSocketHandler(userService, gameService);
 
         // Register your endpoints and exception handlers here.
         server.delete("db", this::clear);

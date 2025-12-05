@@ -1,5 +1,6 @@
 package server.websocket;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
 
@@ -10,6 +11,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class ConnectionManager {
     public final ConcurrentHashMap<Integer, CopyOnWriteArraySet<Session>> connections = new ConcurrentHashMap<>();
+    private final Gson gson = new Gson();
 
     public void add(Integer gameID, Session session) {
         connections.computeIfAbsent(gameID, k -> new CopyOnWriteArraySet<>()).add(session);
@@ -20,7 +22,7 @@ public class ConnectionManager {
     }
 
     public void broadcast(Integer gameID, Session excludeSession, ServerMessage message) throws IOException {
-        String msg = message.getMessage();
+        String msg = gson.toJson(message);
         for (Session c : connections.get(gameID)) {
             if (c.isOpen()) {
                 if (!c.equals(excludeSession)) {

@@ -66,4 +66,8 @@ public class GameService extends Service {
         }
         else { throw new ErrorException(403, "Error: already taken"); }
     }
+
+    public ChessGame loadGame(int gameID) throws ErrorException{
+        return dataAccess.getGameData(gameID).game();
+    }
 }

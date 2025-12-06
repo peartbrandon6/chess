@@ -92,13 +92,28 @@ public class GameService extends Service {
                 throw new ErrorException(400, "Error: bad request");
             }
             dataAccess.updateGameData(gameData);
-            ChessGame newgame;
-            newgame = dataAccess.getGameData(gameData.gameID()).game();
-            System.out.println(newgame.getTeamTurn());
             return gameData.game();
         }
         else {
             throw new ErrorException(400, "Error: bad request");
+        }
+    }
+
+    public void leaveGame(String authToken, int gameID) throws ErrorException {
+        if (authenticate(authToken)) {
+            String username = dataAccess.getAuthData(authToken).username();
+            GameData gameData = dataAccess.getGameData(gameID);
+            if (username.equals(gameData.whiteUsername())){
+                gameData = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game());
+            }
+            else if (username.equals(gameData.blackUsername())){
+                gameData = new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game());
+            }
+
+            dataAccess.updateGameData(gameData);
+        }
+        else {
+            throw new ErrorException(401, "Error: unauthorized");
         }
     }
 }

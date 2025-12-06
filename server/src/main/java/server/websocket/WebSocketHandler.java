@@ -174,6 +174,26 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void leave(UserGameCommand command, Session session) throws IOException {
+        if (connections.connections.get(command.getGameID()).contains(session)){
+            String username;
+            try {
+                username = userService.getUsername(command.getAuthToken());
+            } catch (ErrorException e) {
+                sendMessage(new ErrorMessage("Error: unable to authenticate user"), session);
+                return;
+            }
+            try {
+                gameService.leaveGame(command.getAuthToken(), command.getGameID());
+                connections.remove(command.getGameID(), session);
+                connections.broadcast(command.getGameID(), session, new NotificationMessage(String.format("%s has left the game", username)));
+            } catch (ErrorException e) {
+                sendMessage(new ErrorMessage("Error: not in game"), session);
+                return;
+            }
+        }
+        else {
+            sendMessage(new ErrorMessage("Error: not in game"), session);
+        }
 
     }
 

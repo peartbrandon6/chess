@@ -8,6 +8,7 @@ import model.CreateGameRequest;
 import model.JoinGameRequest;
 import model.LoginRequest;
 import model.UserData;
+import ui.DrawBoard;
 
 public class Repl {
     private final ServerFacade server;
@@ -45,8 +46,11 @@ public class Repl {
         if(state.equals(State.SIGNEDOUT)){
             System.out.println("\n[SIGNED_OUT] >>> ");
         }
-        else{
+        else if(state.equals(State.SIGNEDIN)){
             System.out.println("\n[SIGNED_IN] >>> ");
+        }
+        else if(state.equals(State.INGAME)){
+            System.out.println("\n[IN_GAME] >>> ");
         }
 
     }
@@ -177,7 +181,7 @@ public class Repl {
     }
 
     public String redrawChessBoard() {
-        // TODO: Implement redraw logic
+        server.drawBoard();
         return "";
     }
 

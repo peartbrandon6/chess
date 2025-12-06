@@ -4,11 +4,15 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import jakarta.websocket.ContainerProvider;
-import jakarta.websocket.Session;
-import jakarta.websocket.WebSocketContainer;
+import jakarta.websocket.*;
 import model.*;
 import ui.DrawBoard;
+import websocket.commands.MakeMoveCommand;
+import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -19,13 +23,15 @@ import java.util.Map;
 record ListGamesResponse(GameData[] games){
 }
 
-public class ServerFacade {
+public class ServerFacade extends Endpoint {
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverUrl;
     private final Gson gson;
     private String authToken = "";
     private GameData[] currentGames = new GameData[0];
     private Session session;
+    private ChessGame game;
+    private ChessGame.TeamColor teamColor;
 
     ServerFacade(String severUrl){
         this.serverUrl = severUrl;
@@ -54,6 +60,30 @@ public class ServerFacade {
         URI uri = new URI("ws://localhost:8080/ws");
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         session = container.connectToServer(this, uri);
+        session.addMessageHandler(new MessageHandler.Whole<String>() {
+            public void onMessage(String message) {
+                ServerMessage msg = gson.fromJson(message, ServerMessage.class);
+                switch (msg.getServerMessageType()){
+                    case LOAD_GAME -> loadGame(gson.fromJson(message, LoadGameMessage.class));
+                    case ERROR -> error(gson.fromJson(message, ErrorMessage.class));
+                    case NOTIFICATION -> notification(gson.fromJson(message, NotificationMessage.class));
+                }
+            }
+        });
+    }
+
+    private void loadGame(LoadGameMessage msg) {
+        game = msg.getGame();
+        DrawBoard.drawBoard(teamColor, game.getBoard());
+        System.out.println("Joined game successfully");
+    }
+
+    private void error(ErrorMessage msg) {
+        System.out.println(msg.getErrorMessage());
+    }
+
+    private void notification(NotificationMessage msg) {
+        System.out.println(msg.getMessage());
     }
 
     private HttpResponse<String> post(String path, String jsonBody) throws Exception{
@@ -177,20 +207,15 @@ public class ServerFacade {
         var response = put("/game", gson.toJson(adjustedData));
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             openWebSocket();
-            ChessGame game = new ChessGame();
-            game.setBoard(new ChessBoard());
-            ChessBoard board = game.getBoard();
-            board.resetBoard();
-
-            ChessGame.TeamColor color;
+            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, adjustedData.gameID());
+            String msg = gson.toJson(command);
+            session.getBasicRemote().sendText(msg);
             if(data.playerColor().equals("WHITE")){
-                color = ChessGame.TeamColor.WHITE;
+                teamColor = ChessGame.TeamColor.WHITE;
             }
-            else{
-                color = ChessGame.TeamColor.BLACK;
+            else {
+                teamColor = ChessGame.TeamColor.BLACK;
             }
-
-            DrawBoard.drawBoard(color, board);
             return "";
         } else {
             var body = response.body();
@@ -218,4 +243,10 @@ public class ServerFacade {
         return String.format("Currently observing game #%d", id);
     }
 
+    public void drawBoard(){
+        DrawBoard.drawBoard(teamColor, game.getBoard());
+    }
+
+    public void onOpen(Session session, EndpointConfig endpointConfig) {
+    }
 }

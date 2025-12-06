@@ -79,17 +79,6 @@ public class Server {
 
     }
 
-    // Fully implement this, this is just an example
-    private void sendNotification(WsContext ctx){
-        try{
-            if (ctx.session.isOpen()) {
-                ctx.send("Server: here's the message");
-            }
-        } catch (Exception ignore){
-        }
-
-    }
-
     private void exceptionHandler(ErrorException e, Context ctx){
         ctx.status(e.code).result(gson.toJson(new ErrorResponse(e.getMessage())));
     }

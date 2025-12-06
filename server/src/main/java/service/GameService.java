@@ -103,7 +103,8 @@ public class GameService extends Service {
         var teamTurn = gameData.game().getTeamTurn();
         var piece = gameData.game().getBoard().getPiece(move.getStartPosition());
 
-        if ((gameData.whiteUsername().equals(username) && teamTurn == ChessGame.TeamColor.WHITE || gameData.blackUsername().equals(username) && teamTurn == ChessGame.TeamColor.BLACK) && piece != null && teamTurn == piece.getTeamColor()){
+        if ((gameData.whiteUsername().equals(username) && teamTurn == ChessGame.TeamColor.WHITE
+        || gameData.blackUsername().equals(username) && teamTurn == ChessGame.TeamColor.BLACK) && piece != null && teamTurn == piece.getTeamColor()){
             try {
                 gameData.game().makeMove(move);
                 if(teamTurn == ChessGame.TeamColor.WHITE){

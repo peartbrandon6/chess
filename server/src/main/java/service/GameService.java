@@ -87,11 +87,11 @@ public class GameService extends Service {
                 else{
                     gameData.game().setTeamTurn(ChessGame.TeamColor.WHITE);
                 }
+
             } catch (InvalidMoveException e) {
                 throw new ErrorException(400, "Error: bad request");
             }
-            System.out.println(gameData.game().getTeamTurn());
-            dataAccess.updateGameData(new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(),gameData.gameName(),gameData.game()));
+            dataAccess.updateGameData(gameData);
             ChessGame newgame;
             newgame = dataAccess.getGameData(gameData.gameID()).game();
             System.out.println(newgame.getTeamTurn());

@@ -1,12 +1,16 @@
 package dataaccess;
 
-import chess.ChessGame;
-import com.google.gson.Gson;
+import chess.*;
+import com.google.gson.*;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import exceptions.ErrorException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.sql.*;
 
 public class MySQLDataAccess implements DataAccess{
@@ -45,7 +49,9 @@ public class MySQLDataAccess implements DataAccess{
     };
 
     public MySQLDataAccess() throws ErrorException {
-        gson = new Gson();
+        gson = new GsonBuilder()
+                .enableComplexMapKeySerialization()
+                .create();
         DatabaseManager.createDatabase();
         try(var connection = DatabaseManager.getConnection()){
             for (String statement : creationStrings){
@@ -88,7 +94,10 @@ public class MySQLDataAccess implements DataAccess{
                         String whiteUsername = set.getString(2);
                         String blackUsername = set.getString(3);
                         String gameName = set.getString(4);
-                        ChessGame game = gson.fromJson(set.getString(5), ChessGame.class);
+                        String json = set.getString(5);
+                        JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
+                        JsonObject gameObj = obj.getAsJsonObject("game");
+                        ChessGame game = gson.fromJson(gameObj, ChessGame.class);
                         return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
                     }
                 }

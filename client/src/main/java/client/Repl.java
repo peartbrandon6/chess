@@ -2,6 +2,8 @@ package client;
 
 import java.util.Arrays;
 import java.util.Scanner;
+
+import chess.ChessGame;
 import model.CreateGameRequest;
 import model.JoinGameRequest;
 import model.LoginRequest;
@@ -10,6 +12,7 @@ import model.UserData;
 public class Repl {
     private final ServerFacade server;
     private State state;
+    private ChessGame game;
 
     public Repl(String url){
         server = new ServerFacade(url);
@@ -88,6 +91,7 @@ public class Repl {
         } catch (Exception e){
             return e.getMessage();
         }
+        return "Error: Illegal state";
     }
 
     public String register(String[] params) throws Exception{
@@ -147,7 +151,9 @@ public class Repl {
             } catch (Exception e){
                 return "Invalid game ID";
             }
-            return server.joinGame(new JoinGameRequest(params[1].toUpperCase(), id));
+            var res = server.joinGame(new JoinGameRequest(params[1].toUpperCase(), id));
+            state = State.INGAME;
+            return res;
         }
         else{
             return "Invalid number of arguments: type help to see possible commands";

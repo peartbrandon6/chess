@@ -129,7 +129,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
 
         ChessMove move = command.getMove();
-        if (!game.validMoves(move.getStartPosition()).contains(move)){
+        try {
+            if (!game.validMoves(move.getStartPosition()).contains(move)){
+                sendMessage(new ErrorMessage("Error: invalid move"), session);
+                return;
+            }
+        } catch (IOException e) {
             sendMessage(new ErrorMessage("Error: invalid move"), session);
             return;
         }

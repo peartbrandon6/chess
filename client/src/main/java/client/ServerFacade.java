@@ -2,6 +2,7 @@ package client;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import jakarta.websocket.*;
@@ -14,6 +15,7 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -245,6 +247,25 @@ public class ServerFacade extends Endpoint {
     public void drawBoard(){
         DrawBoard.drawBoard(teamColor, game.getBoard());
     }
+
+    public void leaveGame(int gameID) throws Exception{
+        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, currentGames[gameID-1].gameID());
+        String msg = gson.toJson(command);
+        session.getBasicRemote().sendText(msg);
+    }
+
+    public void resignGame(int gameID) throws Exception{
+        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, currentGames[gameID-1].gameID());
+        String msg = gson.toJson(command);
+        session.getBasicRemote().sendText(msg);
+    }
+
+    public void makeMove(ChessMove move, int gameID) throws IOException {
+        MakeMoveCommand command = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, currentGames[gameID-1].gameID(), move);
+        String msg = gson.toJson(command);
+        session.getBasicRemote().sendText(msg);
+    }
+
 
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }

@@ -1,19 +1,25 @@
 package client;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Scanner;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import model.CreateGameRequest;
 import model.JoinGameRequest;
 import model.LoginRequest;
 import model.UserData;
 import ui.DrawBoard;
+import websocket.commands.MakeMoveCommand;
+import websocket.commands.UserGameCommand;
 
 public class Repl {
     private final ServerFacade server;
     private State state;
-    private ChessGame game;
+    private int id;
 
     public Repl(String url){
         server = new ServerFacade(url);
@@ -149,7 +155,6 @@ public class Repl {
 
     public String join(String[] params) throws Exception{
         if (params.length == 2){
-            int id;
             try{
                 id = Integer.parseInt(params[0]);
             } catch (Exception e){
@@ -166,7 +171,6 @@ public class Repl {
 
     public String observe(String[] params) throws Exception{
         if (params.length == 1){
-            int id;
             try{
                 id = Integer.parseInt(params[0]);
             } catch (Exception e){
@@ -186,23 +190,85 @@ public class Repl {
         return "";
     }
 
-    public String leaveGame() {
-        // TODO: Implement leave logic
+    public String leaveGame() throws Exception{
+        server.leaveGame(id);
+        this.state = State.SIGNEDIN;
+        return "Left game successfully";
+    }
+
+    public String makeMove(String[] params) throws IOException {
+        // TODO: change the positions into a ChessMove using a list. If valid then call server.makeMove.
+        ChessMove move;
+        if (params.length == 2 && params[0].length() == 2 && params[1].length() == 2){
+            try{
+                String letters = "a b c d e f g h";
+                if (letters.contains(params[0].substring(0,1)) && letters.contains(params[1].substring(0,1))){
+                    ChessPosition startPos = convertToChessPosition(params[0]);
+                    ChessPosition endPos = convertToChessPosition(params[1]);
+                    move = new ChessMove(startPos,endPos, null);
+                }
+                else {
+                    return "Invalid input: type help to see make_move format";
+                }
+            } catch (Exception e){
+                return "Unknown Error has occurred.";
+            }
+
+        }
+        else if (params.length == 3 && params[0].length() == 2 && params[1].length() == 2) {
+            String letters = "abcdefgh";
+            if (letters.contains(params[0].substring(1)) && letters.contains(params[1].substring(1))){
+                ChessPosition startPos = convertToChessPosition(params[0]);
+                ChessPosition endPos = convertToChessPosition(params[1]);
+                ChessPiece.PieceType promo;
+                switch (params[2]) {
+                    case "queen":
+                        promo = ChessPiece.PieceType.QUEEN;
+                        break;
+                    case "rook":
+                        promo = ChessPiece.PieceType.ROOK;
+                        break;
+                    case "bishop":
+                        promo = ChessPiece.PieceType.BISHOP;
+                        break;
+                    case "knight":
+                        promo = ChessPiece.PieceType.KNIGHT;
+                        break;
+                    default:
+                        return "Invalid input: type help to see make_move format";
+                }
+                move = new ChessMove(startPos,endPos, promo);
+            }
+            else {
+                return "Invalid input: type help to see make_move format";
+            }
+        }
+        else{
+            return "Invalid input: type help to see possible commands";
+        }
+        server.makeMove(move,id);
+
         return "";
     }
 
-    public String makeMove(String[] params) {
-        // TODO: Implement move logic
-        return "";
+    private ChessPosition convertToChessPosition(String input){
+        input = input.toLowerCase();
+
+        char c1 = input.charAt(0);
+        int col = c1 - 'a' + 1;
+
+        int row = Character.getNumericValue(input.charAt(1));
+
+        return new ChessPosition(row,col);
     }
 
-    public String resignGame() {
-        // TODO: Implement resign logic
+    public String resignGame() throws Exception{
+        server.resignGame(id);
         return "";
     }
 
     public String highlightLegalMoves(String[] params) {
-        // TODO: Implement highlight logic
+        // TODO: change position into a ChessPosition using a list. If valid, call server.highlight which uses DrawBoard
         return "";
     }
 
@@ -228,9 +294,10 @@ public class Repl {
             return """
                     redraw - redraw the chessboard
                     leave - leave the game
-                    make_move <start> <finish> - make a move (e.g. make_move e2 e4)
+                    make_move <start> <finish> <promotion_piece> - make a move, leave promotion blank if unused
+                                                                   (e.g. make_move e2 e4 queen)
                     resign - forfeit the match
-                    highlight <piece>- highlights all legal moves a piece can make (e.g. highlight e2)
+                    highlight <position> - highlights all legal moves a piece can make (e.g. highlight e2)
                     help - list possible commands""";
         }
         else{

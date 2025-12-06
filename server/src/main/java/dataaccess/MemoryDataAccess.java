@@ -1,10 +1,12 @@
 package dataaccess;
 
+import exceptions.ErrorException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class MemoryDataAccess implements DataAccess{
     final private HashMap<String, AuthData> authdata = new HashMap<>();
@@ -26,6 +28,10 @@ public class MemoryDataAccess implements DataAccess{
     public UserData getUserData(String username) {
         return userdata.get(username);
     }
+
+    public HashSet<Integer> getFinishedGames(){ return null; }
+
+    public void putFinishedGame(int gameID) throws ErrorException {    }
 
     public void putAuthData(AuthData data) {
         authdata.put(data.authToken(), data);

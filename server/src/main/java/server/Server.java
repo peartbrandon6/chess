@@ -9,7 +9,6 @@ import exceptions.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 
-import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsContext;
 import model.*;
 import server.websocket.WebSocketHandler;
@@ -19,8 +18,6 @@ import service.UserService;
 
 import java.sql.SQLException;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 
 record ErrorResponse(String message){

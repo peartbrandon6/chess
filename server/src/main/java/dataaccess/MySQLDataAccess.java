@@ -2,19 +2,17 @@ package dataaccess;
 
 import chess.*;
 import com.google.gson.*;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import exceptions.ErrorException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
 import java.sql.*;
+import java.util.HashSet;
 
 public class MySQLDataAccess implements DataAccess{
     private final Gson gson;
+    private HashSet<Integer> finishedGames = new HashSet<>();
 
     private final String[] creationStrings = {
             """
@@ -159,6 +157,14 @@ public class MySQLDataAccess implements DataAccess{
         return null;
     }
 
+    public HashSet<Integer> getFinishedGames() throws ErrorException{
+        return finishedGames;
+    }
+
+    public void putFinishedGame(int gameID) throws ErrorException{
+        finishedGames.add(gameID);
+    }
+
     public void putAuthData(AuthData data) throws ErrorException{
         try (var conn = DatabaseManager.getConnection()){
             var statement = "INSERT INTO authdata (authtoken, username) VALUES (?, ?)";
@@ -236,6 +242,7 @@ public class MySQLDataAccess implements DataAccess{
     }
 
     public void clearGameData() throws ErrorException{
+        finishedGames.clear();
         execute("DELETE FROM gamedata");
     }
 

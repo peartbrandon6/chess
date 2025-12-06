@@ -73,6 +73,31 @@ public class GameService extends Service {
         return dataAccess.getGameData(gameID).game();
     }
 
+    public void putFinishedGame(int gameID) throws ErrorException{
+        dataAccess.putFinishedGame(gameID);
+    }
+
+    public String canResign(String authToken, int gameID) throws ErrorException {
+        if (authenticate(authToken)) {
+            String username = dataAccess.getAuthData(authToken).username();
+            GameData gameData = dataAccess.getGameData(gameID);
+            if (username.equals(gameData.whiteUsername()) || username.equals(gameData.blackUsername())){
+                putFinishedGame(gameID);
+                return username;
+            }
+            else {
+                throw new ErrorException(401, "Error: unauthorized");
+            }
+        }
+        else {
+            throw new ErrorException(401, "Error: unauthorized");
+        }
+    }
+
+    public boolean gameOver(int gameID) throws ErrorException{
+        return dataAccess.getFinishedGames().contains(gameID);
+    }
+
     public ChessGame makeMove(int gameID, String username, ChessMove move) throws ErrorException {
         GameData gameData = dataAccess.getGameData(gameID);
         var teamTurn = gameData.game().getTeamTurn();

@@ -105,6 +105,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return;
         }
 
+        try {
+            if (gameService.gameOver(command.getGameID())){
+                sendMessage(new ErrorMessage("Error: game has concluded"), session);
+                return;
+            }
+        } catch (ErrorException e) {
+            sendMessage(new ErrorMessage("Error: unable to determine game state"), session);
+            return;
+        }
+
         ChessGame game;
         try {
             game = gameService.loadGame(command.getGameID());
@@ -116,6 +126,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             sendMessage(new ErrorMessage("Error: unable to authenticate game"), session);
             return;
         }
+
 
         ChessMove move = command.getMove();
         if (!game.validMoves(move.getStartPosition()).contains(move)){
@@ -148,12 +159,23 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void checkEndGame(ChessGame game, int gameID) throws IOException{
             if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)){
+                try {
+                    gameService.putFinishedGame(gameID);
+                } catch (ErrorException e) {
+                    throw new RuntimeException(e);
+                }
                 connections.broadcast(gameID, null, new NotificationMessage("Checkmate"));
             }
             else if (game.isInCheck(ChessGame.TeamColor.WHITE) || game.isInCheck(ChessGame.TeamColor.BLACK)){
+
                 connections.broadcast(gameID, null, new NotificationMessage("Check"));
             }
             else if (game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInStalemate(ChessGame.TeamColor.BLACK)) {
+                try {
+                    gameService.putFinishedGame(gameID);
+                } catch (ErrorException e) {
+                    throw new RuntimeException(e);
+                }
                 connections.broadcast(gameID, null, new NotificationMessage("Stalemate"));
             }
     }
@@ -188,7 +210,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 connections.broadcast(command.getGameID(), session, new NotificationMessage(String.format("%s has left the game", username)));
             } catch (ErrorException e) {
                 sendMessage(new ErrorMessage("Error: not in game"), session);
-                return;
             }
         }
         else {
@@ -198,7 +219,29 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void resign(UserGameCommand command, Session session) throws IOException {
+        if (invalidUserCheck(command, session)){
+            sendMessage(new ErrorMessage("Error: unable to authenticate user"), session);
+            return;
+        }
 
+        try {
+            if (gameService.gameOver(command.getGameID())){
+                sendMessage(new ErrorMessage("Error: game has concluded"), session);
+                return;
+            }
+        } catch (ErrorException e) {
+            sendMessage(new ErrorMessage("Error: unable to determine game state"), session);
+            return;
+        }
+
+        String username;
+        try {
+            username = gameService.canResign(command.getAuthToken(), command.getGameID());
+            gameService.putFinishedGame(command.getGameID());
+            connections.broadcast(command.getGameID(), null, new NotificationMessage(String.format("%s has resigned", username)));
+        } catch (Exception e) {
+            sendMessage(new ErrorMessage("Error: unable to authenticate game"), session);
+        }
     }
 }
 

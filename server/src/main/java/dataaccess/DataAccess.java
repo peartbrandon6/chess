@@ -5,12 +5,16 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 
+import java.util.HashSet;
+
 public interface DataAccess {
     public AuthData getAuthData(String authToken) throws ErrorException;
     public GameData getGameData(Integer gameID) throws ErrorException;
     public GameData[] getAllGameData() throws ErrorException;
     public UserData getUserData(String username) throws ErrorException;
+    public HashSet<Integer> getFinishedGames() throws ErrorException;
 
+    public void putFinishedGame(int gameID) throws ErrorException;
     public void putAuthData(AuthData data) throws ErrorException;
     public void putGameData(GameData data) throws ErrorException;
     public void putUserData(UserData data) throws ErrorException;

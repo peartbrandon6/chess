@@ -172,8 +172,9 @@ public class Repl {
             } catch (Exception e){
                 return "Invalid game ID";
             }
-
-            return server.observeGame(id);
+            var res = server.observeGame(id);
+            state = State.INGAME;
+            return res;
         }
         else{
             return "Invalid number of arguments: type help to see possible commands";

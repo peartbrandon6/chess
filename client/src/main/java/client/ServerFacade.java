@@ -227,19 +227,18 @@ public class ServerFacade extends Endpoint {
     }
 
     public String observeGame(int id) throws Exception {
-        openWebSocket();
         try{
             currentGames[id-1].gameID();
         } catch (Exception e) {
             return "Error: Invalid game ID";
         }
 
-        ChessGame game = new ChessGame();
-        game.setBoard(new ChessBoard());
-        ChessBoard board = game.getBoard();
-        board.resetBoard();
+        openWebSocket();
+        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, currentGames[id-1].gameID());
+        String msg = gson.toJson(command);
+        session.getBasicRemote().sendText(msg);
+        teamColor = ChessGame.TeamColor.WHITE;
 
-        DrawBoard.drawBoard(ChessGame.TeamColor.WHITE, board);
         return String.format("Currently observing game #%d", id);
     }
 

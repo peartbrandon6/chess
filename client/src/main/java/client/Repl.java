@@ -53,7 +53,7 @@ public class Repl {
         String cmd = args[0];
         String[] params = Arrays.copyOfRange(args, 1, args.length);
         try{
-            if(state.equals(State.SIGNEDOUT)) {
+            if (state.equals(State.SIGNEDOUT)) {
                 return switch (cmd) {
                     case "register" -> register(params);
                     case "login" -> login(params);
@@ -62,7 +62,7 @@ public class Repl {
                     default -> "Invalid input: type help to see possible commands";
                 };
             }
-            else{
+            else if (state.equals(State.SIGNEDIN)){
                 return switch (cmd) {
                     case "logout" -> logout();
                     case "create" -> create(params);
@@ -71,6 +71,17 @@ public class Repl {
                     case "observe" -> observe(params);
                     case "help" -> help();
                     case "quit" -> "quit";
+                    default -> "Invalid input: type help to see possible commands";
+                };
+            }
+            else if (state.equals(State.INGAME)){
+                return switch (cmd) {
+                    case "redraw" -> redrawChessBoard();
+                    case "leave" -> leaveGame();
+                    case "make_move" -> makeMove(params);
+                    case "resign" -> resignGame();
+                    case "highlight" -> highlightLegalMoves(params);
+                    case "help" -> help();
                     default -> "Invalid input: type help to see possible commands";
                 };
             }
@@ -151,11 +162,37 @@ public class Repl {
             } catch (Exception e){
                 return "Invalid game ID";
             }
+
             return server.observeGame(id);
         }
         else{
             return "Invalid number of arguments: type help to see possible commands";
         }
+    }
+
+    public String redrawChessBoard() {
+        // TODO: Implement redraw logic
+        return "";
+    }
+
+    public String leaveGame() {
+        // TODO: Implement leave logic
+        return "";
+    }
+
+    public String makeMove(String[] params) {
+        // TODO: Implement move logic
+        return "";
+    }
+
+    public String resignGame() {
+        // TODO: Implement resign logic
+        return "";
+    }
+
+    public String highlightLegalMoves(String[] params) {
+        // TODO: Implement highlight logic
+        return "";
     }
 
     public String help(){
@@ -166,7 +203,7 @@ public class Repl {
                     quit - close program
                     help - list possible commands""";
         }
-        else {
+        else if (state == State.SIGNEDIN) {
             return """
                     create <gamename> - create a new game
                     list - list all games
@@ -175,6 +212,18 @@ public class Repl {
                     logout - sign out of your account
                     quit - close program
                     help - list possible commands""";
+        }
+        else if (state == State.INGAME) {
+            return """
+                    redraw - redraw the chessboard
+                    leave - leave the game
+                    make_move <start> <finish> - make a move (e.g. make_move e2 e4)
+                    resign - forfeit the match
+                    highlight <piece>- highlights all legal moves a piece can make (e.g. highlight e2)
+                    help - list possible commands""";
+        }
+        else{
+            return "Error: Illegal state";
         }
 
     }

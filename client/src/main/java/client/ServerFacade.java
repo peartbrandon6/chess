@@ -11,7 +11,6 @@ import model.*;
 import ui.DrawBoard;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -177,6 +176,7 @@ public class ServerFacade {
 
         var response = put("/game", gson.toJson(adjustedData));
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            openWebSocket();
             ChessGame game = new ChessGame();
             game.setBoard(new ChessBoard());
             ChessBoard board = game.getBoard();
@@ -201,7 +201,8 @@ public class ServerFacade {
         }
     }
 
-    public String observeGame(int id){
+    public String observeGame(int id) throws Exception {
+        openWebSocket();
         try{
             currentGames[id-1].gameID();
         } catch (Exception e) {

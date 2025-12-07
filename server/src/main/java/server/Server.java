@@ -9,7 +9,6 @@ import exceptions.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 
-import io.javalin.websocket.WsContext;
 import model.*;
 import server.websocket.WebSocketHandler;
 import service.ClearService;

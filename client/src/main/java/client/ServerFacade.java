@@ -1,8 +1,8 @@
 package client;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import jakarta.websocket.*;
@@ -20,7 +20,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 record ListGamesResponse(GameData[] games){
 }
@@ -265,6 +268,14 @@ public class ServerFacade extends Endpoint {
         session.getBasicRemote().sendText(msg);
     }
 
+    public void highlight(ChessPosition pos){
+        Collection<ChessMove> moves = game.validMoves(pos);
+        Set<ChessPosition> posSet = new HashSet<>();
+        for(ChessMove move: moves){
+            posSet.add(move.getEndPosition());
+        }
+        DrawBoard.highlightSquares(teamColor, game.getBoard(), posSet, pos);
+    }
 
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }

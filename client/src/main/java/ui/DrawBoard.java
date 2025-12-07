@@ -7,6 +7,8 @@ import chess.ChessPosition;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
 
 import static ui.EscapeSequences.*;
 
@@ -15,6 +17,8 @@ public class DrawBoard {
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 3;
     private static final int LINE_WIDTH_IN_PADDED_CHARS = 1;
+    private static Set<ChessPosition> highlightedSquares = new HashSet<>();
+    private static ChessPosition currentSquare;
 
     public static void drawBoard(ChessGame.TeamColor color, ChessBoard board) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
@@ -29,6 +33,14 @@ public class DrawBoard {
 
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
+    }
+
+    public static void highlightSquares(ChessGame.TeamColor color, ChessBoard board, Set<ChessPosition> highlightedSquares, ChessPosition currentSquare){
+        DrawBoard.highlightedSquares = highlightedSquares;
+        DrawBoard.currentSquare = currentSquare;
+        drawBoard(color, board);
+        DrawBoard.currentSquare = null;
+        DrawBoard.highlightedSquares = new HashSet<>();
     }
 
     private static void drawHeaders(PrintStream out, ChessGame.TeamColor color) {
@@ -90,7 +102,22 @@ public class DrawBoard {
     }
 
     private static void setColor(PrintStream out, int row, int col, ChessGame.TeamColor color){
-        if((col + row) % 2 == 0){
+        if(color == ChessGame.TeamColor.WHITE){
+            row = 8 - row;
+            col = col + 1;
+        }
+        else{
+            row = row + 1;
+            col = 8 - col;
+        }
+
+        if (new ChessPosition(row, col).equals(DrawBoard.currentSquare)){
+            setGreen(out);
+        }
+        else if (DrawBoard.highlightedSquares != null && DrawBoard.highlightedSquares.contains(new ChessPosition(row, col))){
+            setYellow(out);
+        }
+        else if((col + row) % 2 == 0){
             setWhite(out);
         }
         else{
@@ -98,6 +125,8 @@ public class DrawBoard {
         }
 
     }
+
+
 
     private static void drawRowOfSquares(PrintStream out, ChessBoard board, int row, ChessGame.TeamColor color) {
 
@@ -200,6 +229,14 @@ public class DrawBoard {
 
     private static void setBlack(PrintStream out) {
         out.print(SET_BG_COLOR_BLACK);
+    }
+
+    private static void setYellow(PrintStream out) {
+        out.print(SET_BG_COLOR_YELLOW);
+    }
+
+    private static void setGreen(PrintStream out) {
+        out.print(SET_BG_COLOR_GREEN);
     }
 
     private static void printPiece(PrintStream out, String piece) {

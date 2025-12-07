@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Scanner;
 
-import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
@@ -12,9 +11,6 @@ import model.CreateGameRequest;
 import model.JoinGameRequest;
 import model.LoginRequest;
 import model.UserData;
-import ui.DrawBoard;
-import websocket.commands.MakeMoveCommand;
-import websocket.commands.UserGameCommand;
 
 public class Repl {
     private final ServerFacade server;
@@ -58,6 +54,9 @@ public class Repl {
         else if(state.equals(State.INGAME)){
             System.out.println("\n[IN_GAME] >>> ");
         }
+        else if(state.equals(State.CONFIRM)){
+            System.out.println("\n[CONFIRM] >>> ");
+        }
 
     }
 
@@ -92,16 +91,34 @@ public class Repl {
                     case "redraw" -> redrawChessBoard();
                     case "leave" -> leaveGame();
                     case "make_move" -> makeMove(params);
-                    case "resign" -> resignGame();
+                    case "resign" -> confirm();
                     case "highlight" -> highlightLegalMoves(params);
                     case "help" -> help();
                     default -> "Invalid input: type help to see possible commands";
+                };
+            }
+            else if (state.equals(State.CONFIRM)){
+                return switch (cmd) {
+                    case "y" -> resignGame();
+                    case "n" -> returnToGame();
+                    case "help" -> "Enter Y or N";
+                    default -> "Are you sure you want to resign? Y/N";
                 };
             }
         } catch (Exception e){
             return e.getMessage();
         }
         return "Error: Illegal state";
+    }
+
+    private String confirm() {
+        state = State.CONFIRM;
+        return "Are you sure you want to resign? Y/N";
+    }
+
+    private String returnToGame() {
+        state = State.INGAME;
+        return "Returned to game";
     }
 
     public String register(String[] params) throws Exception{
@@ -197,7 +214,6 @@ public class Repl {
     }
 
     public String makeMove(String[] params) throws IOException {
-        // TODO: change the positions into a ChessMove using a list. If valid then call server.makeMove.
         ChessMove move;
         if (params.length == 2 && params[0].length() == 2 && params[1].length() == 2){
             try{
@@ -211,36 +227,40 @@ public class Repl {
                     return "Invalid input: type help to see make_move format";
                 }
             } catch (Exception e){
-                return "Unknown Error has occurred.";
+                return "Unable to make that move";
             }
 
         }
         else if (params.length == 3 && params[0].length() == 2 && params[1].length() == 2) {
-            String letters = "abcdefgh";
-            if (letters.contains(params[0].substring(1)) && letters.contains(params[1].substring(1))){
-                ChessPosition startPos = convertToChessPosition(params[0]);
-                ChessPosition endPos = convertToChessPosition(params[1]);
-                ChessPiece.PieceType promo;
-                switch (params[2]) {
-                    case "queen":
-                        promo = ChessPiece.PieceType.QUEEN;
-                        break;
-                    case "rook":
-                        promo = ChessPiece.PieceType.ROOK;
-                        break;
-                    case "bishop":
-                        promo = ChessPiece.PieceType.BISHOP;
-                        break;
-                    case "knight":
-                        promo = ChessPiece.PieceType.KNIGHT;
-                        break;
-                    default:
-                        return "Invalid input: type help to see make_move format";
+            try {
+                String letters = "a b c d e f g h";
+                if (letters.contains(params[0].substring(1)) && letters.contains(params[1].substring(1))){
+                    ChessPosition startPos = convertToChessPosition(params[0]);
+                    ChessPosition endPos = convertToChessPosition(params[1]);
+                    ChessPiece.PieceType promo;
+                    switch (params[2]) {
+                        case "queen":
+                            promo = ChessPiece.PieceType.QUEEN;
+                            break;
+                        case "rook":
+                            promo = ChessPiece.PieceType.ROOK;
+                            break;
+                        case "bishop":
+                            promo = ChessPiece.PieceType.BISHOP;
+                            break;
+                        case "knight":
+                            promo = ChessPiece.PieceType.KNIGHT;
+                            break;
+                        default:
+                            return "Invalid input: type help to see make_move format";
+                    }
+                    move = new ChessMove(startPos,endPos, promo);
                 }
-                move = new ChessMove(startPos,endPos, promo);
-            }
-            else {
-                return "Invalid input: type help to see make_move format";
+                else {
+                    return "Invalid input: type help to see make_move format";
+                }
+            } catch (Exception e) {
+                return "Unable to make that move";
             }
         }
         else{
@@ -251,13 +271,16 @@ public class Repl {
         return "";
     }
 
-    private ChessPosition convertToChessPosition(String input){
+    private ChessPosition convertToChessPosition(String input) throws Exception {
         input = input.toLowerCase();
 
         char c1 = input.charAt(0);
         int col = c1 - 'a' + 1;
 
         int row = Character.getNumericValue(input.charAt(1));
+        if (row < 1 || row > 8) {
+            throw new Exception("out of range");
+        }
 
         return new ChessPosition(row,col);
     }
@@ -268,7 +291,20 @@ public class Repl {
     }
 
     public String highlightLegalMoves(String[] params) {
-        // TODO: change position into a ChessPosition using a list. If valid, call server.highlight which uses DrawBoard
+        if (params.length == 1 && params[0].length() == 2) {
+            try {
+                String letters = "a b c d e f g h";
+                if (letters.contains(params[0].substring(0, 1))) {
+                    ChessPosition pos = convertToChessPosition(params[0]);
+                    server.highlight(pos);
+                } else {
+                    return "Invalid input: type help to see make_move format";
+                }
+            } catch (Exception e) {
+                return "No piece there to move.";
+            }
+            return "";
+        }
         return "";
     }
 

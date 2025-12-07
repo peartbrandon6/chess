@@ -35,7 +35,8 @@ public class DrawBoard {
         out.print(SET_TEXT_COLOR_WHITE);
     }
 
-    public static void highlightSquares(ChessGame.TeamColor color, ChessBoard board, Set<ChessPosition> highlightedSquares, ChessPosition currentSquare){
+    public static void highlightSquares(ChessGame.TeamColor color, ChessBoard board,
+                                        Set<ChessPosition> highlightedSquares, ChessPosition currentSquare){
         DrawBoard.highlightedSquares = highlightedSquares;
         DrawBoard.currentSquare = currentSquare;
         drawBoard(color, board);

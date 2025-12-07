@@ -77,7 +77,6 @@ public class ServerFacade extends Endpoint {
     private void loadGame(LoadGameMessage msg) {
         game = msg.getGame();
         DrawBoard.drawBoard(teamColor, game.getBoard());
-        System.out.println("Joined game successfully");
     }
 
     private void error(ErrorMessage msg) {

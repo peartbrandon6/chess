@@ -121,10 +121,10 @@ public class DrawBoard {
 
                     ChessPiece piece;
                     if(color.equals(ChessGame.TeamColor.WHITE)){
-                        piece = board.getPiece(new ChessPosition(row+1, boardCol+1));
+                        piece = board.getPiece(new ChessPosition(8 - row, boardCol+1));
                     }
                     else{
-                        piece = board.getPiece(new ChessPosition(8-row, 8-boardCol));
+                        piece = board.getPiece(new ChessPosition(row + 1, 8-boardCol));
                     }
 
 
